@@ -1,0 +1,20 @@
+authorName: default
+experimentName: example-auto-fe
+trialConcurrency: 1
+maxExecDuration: 1h
+maxTrialNum: 100
+#choice: local, remote
+trainingServicePlatform: local
+searchSpacePath: search_space.json
+#choice: true, false
+useAnnotation: false
+tuner:
+  codeDir: ~/nni/examples/trials/autofe-gbdt
+  classFileName: autofe_tunner.py
+  className: CustomerTuner
+  classArgs:
+    optimize_mode: maximize
+trial:
+  command: python3 main.py
+  codeDir: .
+  gpuNum: 0
