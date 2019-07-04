@@ -29,19 +29,6 @@ from model import *
 
 LOG = logging.getLogger('sklearn_classification')
 
-def load_data():
-    '''Load dataset, use 20newsgroups dataset'''
-    digits = load_digits()
-    X_train, X_test, y_train, y_test = train_test_split(digits.data, digits.target, random_state=99, test_size=0.25)
-
-    ss = StandardScaler()
-    X_train = ss.fit_transform(X_train)
-    X_test = ss.transform(X_test)
-
-    return X_train, X_test, y_train, y_test
-
-
-
 def unit_test_fe():
     with open('search_space.json', 'r') as myfile:
         data=myfile.read()
@@ -55,7 +42,7 @@ def unit_test_fe():
 
 
 if __name__ == '__main__':
-    unit_test_fe()
+   #unit_test_fe()
     #X_train, X_test, y_train, y_test = load_data()
     file_name = 'train.tiny.csv'
     target_name = 'Label'
