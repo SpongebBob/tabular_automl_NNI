@@ -38,8 +38,9 @@ class CustomerTuner(Tuner):
     def __init__(self, optimize_mode, feature_percent = 0.6):
         self.count = -1
         self.optimize_mode = OptimizeMode(optimize_mode)
-        self.search_space = []
+        self.search_space = None
         self.feature_percent = feature_percent
+        self.default_space = []
         logger.debug('init aufo-fe done.')
         return
 
@@ -50,21 +51,22 @@ class CustomerTuner(Tuner):
         """
         self.count += 1
         if self.count == 0:
-            return self.search_space
+            return {'default_space': self.default_space}
         else:
-            feature_list = list(self.search_space.feature_name)
-            feature_probablity = list(self.search_space.feature_score)
+            importance_df = self.search_space
+            importance_df = importance_df[importance_df.feature_score !=0]
+            feature_list = list(importance_df.feature_name)
+            feature_probablity = list(importance_df.feature_score)
             # gen_parameter_from_distribution default number is sqrt    
             sample_feature = np.random.choice(
                 feature_list, 
-                size = int(len(feature_list) * self.feature_percent), 
+                size = int(len(importance_df) * self.feature_percent), 
                 p=feature_probablity, 
                 replace = False
                 )
-            gen_feature = list(sample_feature)#{"select_column" : list(sample_feature)}
-            print(gen_feature)
-            print('gen_feature')
-            return gen_feature  
+            gen_feature = list(sample_feature)
+            r = {'sample_feature': gen_feature, 'default_space': self.default_space}
+            return r  
 
 
     def receive_trial_result(self, parameter_id, parameters, value, **kwargs):
@@ -74,9 +76,9 @@ class CustomerTuner(Tuner):
         parameters : dict of parameters
         value: final metrics of the trial, including reward
         '''
-        print(value)
         # get the feature importance
-        self.search_space = value['feature_importance']
+        if self.search_space is None:
+            self.search_space = value['feature_importance']
         reward = extract_scalar_reward(value)
         if self.optimize_mode is OptimizeMode.Minimize:
             reward = -reward
@@ -98,7 +100,8 @@ class CustomerTuner(Tuner):
             'op1_op2' : [col1, col2, ....]
         }
         '''
-        self.search_space = data
+        #self.search_space = data
+        self.default_space = data
 
 
 if __name__ =='__main__':

@@ -23,8 +23,9 @@ from sklearn.svm import SVC
 import logging
 import numpy as np
 import pandas as pd
+import json
 from fe_util import *
-
+from model import *
 
 LOG = logging.getLogger('sklearn_classification')
 
@@ -41,59 +42,45 @@ def load_data():
 
 
 
-def get_default_parameters(df, RECEIVED_PARAMS):
-    assert isinstance(RECEIVED_PARAMS, dict)
-    '''get default parameters, parse dict op'''
-    for key in RECEIVED_PARAMS.keys():
-        if key == 'count':
-            '''assert value is [c1,c2,c3,c4]'''
-            for i in RECEIVED_PARAMS[key]:
-                df = count_encode(df, i)
-        elif key == 'bicount':
-            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            for i in RECEIVED_PARAMS[key][0]:
-                for j in RECEIVED_PARAMS[key][1]:
-                    df = cross_count_encode(df, [i, j])
-        elif key == 'aggregate':
-            '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
-            for i in RECEIVED_PARAMS[key][0]:
-                for j in RECEIVED_PARAMS[key][1]:
-                    df = agg_encode(df, i, j)
-        else:
-            raise RuntimeError('Not supported feature engeriner method!')
-    return df
-
-def unit_test():
-    return 
+def unit_test_fe():
+    with open('search_space.json', 'r') as myfile:
+        data=myfile.read()
+    df = pd.read_csv('train.tiny.csv')
+    json_config = json.loads(data)
+    result = get_default_parameters(df, json_config)
+    feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'Label', id_index = 'Id')
+    print(feature_imp)
+    print(val_score)
+    
 
 
 if __name__ == '__main__':
-    X_train, X_test, y_train, y_test = load_data()
-    
+    unit_test_fe()
+    #X_train, X_test, y_train, y_test = load_data()
+    file_name = 'train.tiny.csv'
+    target_name = 'Label'
+    id_index = 'Id'
     try:
         # get parameters from tuner
         RECEIVED_PARAMS = nni.get_next_parameter()
         # list is a column_name generate from tunner
-        if isinstance(RECEIVED_PARAMS, list):
-            use_col = RECEIVED_PARAMS
+        df = pd.read_csv(file_name)
+        df = get_default_parameters(df, RECEIVED_PARAMS['default_space'])
+        if 'sample_feature' in RECEIVED_PARAMS.keys():
+            use_col = RECEIVED_PARAMS['sample_feature']
+            use_col += [target_name]
         else:
-            # do feature genereation here.
-            PARAMS = get_default_parameters(X_train, RECEIVED_PARAMS)
-            
+            use_col = list(df.columns)
+        
         LOG.debug(RECEIVED_PARAMS)
-        PARAMS.update(RECEIVED_PARAMS)
-        LOG.debug(PARAMS) 
-        feature_imp = pd.DataFrame({
-            'feature_name':['col1','col2','col3'],
-            'feature_score':['0.5','0.3','0.2'],
-        })
+        #PARAMS.update(RECEIVED_PARAMS)
+        LOG.debug(use_col) 
+        # attention ID and other Lable need to be specifiy
+        feature_imp, val_score = lgb_model_train(df.loc[:, use_col],  _epoch = 1000, target_name = target_name, id_index = id_index)
         nni.report_final_result({
-            "default":0.555, 
+            "default":val_score , 
             "feature_importance":feature_imp
         })
-
-        #model = get_model(PARAMS)
-        #run(X_train, X_test, y_train, y_test, model)
     except Exception as exception:
         LOG.exception(exception)
         raise
