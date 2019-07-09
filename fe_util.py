@@ -33,27 +33,54 @@ def concat(L):
     return result
 
 
-def get_default_parameters(df, RECEIVED_PARAMS):
-    assert isinstance(RECEIVED_PARAMS, dict)
-    '''get default parameters, parse dict op'''
-    for key in RECEIVED_PARAMS.keys():
+def get_default_parameters(df, default_space, deletcol = [], sample_col = []):
+    assert isinstance(default_space, dict)
+    '''get default parameters, parse dict op, remove delecol'''
+    topk = 25
+    for key in default_space.keys():
         if key == 'count':
             '''assert value is [c1,c2,c3,c4]'''
-            for i in RECEIVED_PARAMS[key]:
+            count_num = 0
+            for i in default_space[key]:
+                if 'count_{}'.format(i) in deletcol or count_num >= topk:
+                    continue
                 df = count_encode(df, i)
+                if 'count_{}'.format(i) in deletcol:
+                    continue
+                count_num += 1
+            
         elif key == 'bicount':
             '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            for i in RECEIVED_PARAMS[key][0]:
-                for j in RECEIVED_PARAMS[key][1]:
+            cross_count_num = 0
+            for i in default_space[key][0]:
+                for j in default_space[key][1]:
+                    if "count_"+ '_'.join([i,j]) in deletcol or cross_count_num >= topk:
+                        continue
                     df = cross_count_encode(df, [i, j])
+                    if  "count_"+ '_'.join([i,j]) in sample_col:
+                        continue
+                    cross_count_num += 1
         elif key == 'aggregate':
             '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
-            for i in RECEIVED_PARAMS[key][0]:
-                for j in RECEIVED_PARAMS[key][1]:
+            agg_num = 0
+            for i in default_space[key][0]:
+                for j in default_space[key][1]:
+                    stat_list = []
+                    sample_num = 0
+                    for stat in ['min', 'max', 'mean', 'median', 'var']:
+                        if 'AGG_{}_{}_{}'.format(stat, i, j) in deletcol or agg_num >= topk:
+                            continue
+                        if 'AGG_{}_{}_{}'.format(stat, i, j) in sample_col:
+                            sample_num += 1
+                        stat_list.append(stat)
+                    if len(stat_list) <= 0:
+                        continue
                     df = agg_encode(df, i, j)
+                    agg_num += len(stat_list) - sample_num
         else:
             raise RuntimeError('Not supported feature engeriner method!')
     return df
+
     
 def count_encode(df, col):
     """
@@ -74,13 +101,10 @@ def cross_count_encode(df, col_list):
     return df
 
 
-def agg_encode(df, num_col, col):
+def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'var']):
     agg_dict = {}
-    agg_dict['AGG_min_{}_{}'.format(num_col, col)] = 'min'
-    agg_dict['AGG_max_{}_{}'.format(num_col, col)] = 'max'
-    agg_dict['AGG_mean_{}_{}'.format(num_col, col)] = 'mean'
-    agg_dict['AGG_median_{}_{}'.format(num_col, col)] = 'median'
-    agg_dict['AGG_var_{}_{}'.format(num_col, col)] = 'var'
+    for i in stat_list:
+        agg_dict['AGG_{}_{}_{}'.format(i, num_col, col)] = i
     agg_result = df.groupby([col])[num_col].agg(agg_dict)
     r = left_merge(df, agg_result, on = [col])
     df = concat([df, r])
