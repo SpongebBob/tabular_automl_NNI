@@ -35,7 +35,7 @@ class OptimizeMode(Enum):
 
 
 class BeamTuner(Tuner):
-    def __init__(self, optimize_mode, feature_percent = 0.6, topk = 120):
+    def __init__(self, optimize_mode, feature_percent = 0.9, topk = 120):
         '''
         Beamsearch tunner used given default seacrch_space to get the top N features.
         '''
@@ -44,7 +44,7 @@ class BeamTuner(Tuner):
         # first trial feaure_importance
         self.search_space = None
         # deleted search_space
-        self.deleta_feature = None
+        self.deleta_feature = set([])
         # defautlt seach_space
         self.default_space = None 
         self.topk = topk
@@ -75,7 +75,7 @@ class BeamTuner(Tuner):
                 replace=False
                 )
             gen_feature = list(sample_feature)
-            self.deleta_feature = set([i for i in feature_list if i not in gen_feature])
+            self.deleta_feature = self.deleta_feature | set([i for i in feature_list if i not in gen_feature])
             generate_result = {
                 'sample_feature': gen_feature, 
                 'default_space': self.default_space, 

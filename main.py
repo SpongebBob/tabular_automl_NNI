@@ -65,7 +65,7 @@ if __name__ == '__main__':
         #     use_col += [target_name]
         # else:
         #use_col = list(df.columns) + [target_name]
-        
+        print(df.columns)
         LOG.debug(RECEIVED_PARAMS)
         #PARAMS.update(RECEIVED_PARAMS)
         #LOG.debug(use_col) 

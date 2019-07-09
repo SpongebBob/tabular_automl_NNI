@@ -36,7 +36,7 @@ def concat(L):
 def get_default_parameters(df, default_space, deletcol = [], sample_col = []):
     assert isinstance(default_space, dict)
     '''get default parameters, parse dict op, remove delecol'''
-    topk = 25
+    topk = 30
     for key in default_space.keys():
         if key == 'count':
             '''assert value is [c1,c2,c3,c4]'''
@@ -45,7 +45,7 @@ def get_default_parameters(df, default_space, deletcol = [], sample_col = []):
                 if 'count_{}'.format(i) in deletcol or count_num >= topk:
                     continue
                 df = count_encode(df, i)
-                if 'count_{}'.format(i) in deletcol:
+                if 'count_{}'.format(i) in sample_col:
                     continue
                 count_num += 1
             
