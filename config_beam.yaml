@@ -10,7 +10,7 @@ searchSpacePath: search_space.json
 useAnnotation: false
 tuner:
   codeDir: ~/nni/examples/trials/tabular_automl_NNI
-  classFileName: beam_tunner.py
+  classFileName: beamsearch_tunner.py
   className: BeamTuner
   classArgs:
     optimize_mode: maximize
