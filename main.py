@@ -34,7 +34,8 @@ def unit_test_fe():
         data=myfile.read()
     df = pd.read_csv('train.tiny.csv')
     json_config = json.loads(data)
-    result = get_default_parameters(df, json_config)
+    #result = get_default_parameters(df, json_config)
+    result = name2feature(df, ["AGG_min_I9_C3", "COUNT_C20", "CROSSCOUNT_C1_C11"])
     feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'Label', id_index = 'Id')
     print(feature_imp)
     print(val_score)
@@ -59,7 +60,8 @@ if __name__ == '__main__':
             sample_col = RECEIVED_PARAMS['sample_feature']
         else:
             sample_col = []
-        df = get_default_parameters(df, RECEIVED_PARAMS['default_space'], delete_col, sample_col)
+        df = name2feature(df, sample_col)
+        # df = get_default_parameters(df, RECEIVED_PARAMS['default_space'], delete_col, sample_col)
         # if 'sample_feature' in RECEIVED_PARAMS.keys():
         #     use_col = RECEIVED_PARAMS['sample_feature']
         #     use_col += [target_name]

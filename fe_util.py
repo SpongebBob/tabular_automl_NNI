@@ -81,6 +81,23 @@ def get_default_parameters(df, default_space, deletcol = [], sample_col = []):
             raise RuntimeError('Not supported feature engeriner method!')
     return df
 
+def name2feature(df, feature_space):
+    assert isinstance(feature_space, list)
+    '''get default parameters, parse dict op, remove delecol'''
+    for key in feature_space:
+        if key.startswith('COUNT'):
+            '''assert value is [c1,c2,c3,c4]'''
+            i = key.split('_')[-1]
+            df = count_encode(df, i)
+        elif key.startswith('CROSSCOUNT'):
+            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
+            i , j = key.split('_')[-2:]
+            df = cross_count_encode(df, [i, j])
+        elif key.startswith('AGG'):
+            '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
+            stat, i, j =  key.split('_')[-3:]
+            df = agg_encode(df, i, j, [stat])
+    return df
     
 def count_encode(df, col):
     """

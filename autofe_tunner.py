@@ -20,6 +20,8 @@ import json
 import logging
 import random
 import numpy as np
+from itertools import combinations
+
 from enum import Enum, unique
 
 from nni.tuner import Tuner
@@ -102,11 +104,59 @@ class CustomerTuner(Tuner):
         '''
         #self.search_space = data
         self.default_space = data
+        self.candidate_feature = self.json2space(data)
+        self.candidate_feature_importance = [0 for i in len(self.candidate_feature)] #default feature importance
 
+    def estimate_candidate_probility(self):
+        """
+        estimate_candidate_probility use history feature importance, first run importance
+        """"
+        #default parameter search space
+        return 
+
+    def json2space(self, default_space):
+        """
+        You Need to add name format and parse mthod in fe_util.py,
+        if you want to add more feature generated methods.
+        """
+        result = []
+        for key in default_space.keys():
+            if key == 'count':
+                for i in default_space[key]:
+                    name = 'COUNT_{}'.format(i)
+                    result.append(name)         
+            elif key == 'crosscount':
+                for i in default_space[key][0]:
+                    for j in default_space[key][1]:
+                        if i == j:
+                            continue
+                        cross = [i,j] 
+                        cross.sort()
+                        name = "CROSSCOUNT_"+ '_'.join(cross)
+            elif key == 'aggregate':
+                for i in default_space[key][0]:
+                    for j in default_space[key][1]:
+                        for stat in ['min', 'max', 'mean', 'median', 'var']:
+                            name = 'AGG_{}_{}_{}'.format(stat, i, j)
+                            result.append(name)
+            else:
+                raise RuntimeError('Not supported feature engeriner method!')
+        return result
 
 if __name__ =='__main__':
     tuner = CustomerTuner(OptimizeMode.Maximize)
-    config = tuner.generate_parameters(0)
-    with open('./data.json', 'w') as outfile:
-        json.dump(config, outfile)
-    tuner.receive_trial_result(0, config, 0.99)
+    with open('search_space.json', 'r') as myfile:
+        data=myfile.read()
+    #df = pd.read_csv('train.tiny.csv')
+    json_config = json.loads(data)
+    #json_config = json_config.to_dict()
+    print(json_config)
+    #result = get_default_parameters(df, json_config)
+    li = tuner.json2space(json_config)
+    print(li)
+    #result = name2feature(df,li)
+    #feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'Label', id_index = 'Id')
+    # config = tuner.generate_parameters(0)
+    # with open('./data.json', 'w') as outfile:
+    #     json.dump(config, outfile)
+    # tuner.receive_trial_result(0, config, 0.99)
