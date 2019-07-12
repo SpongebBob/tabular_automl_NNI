@@ -10,7 +10,7 @@ searchSpacePath: search_space.json
 useAnnotation: false
 tuner:
   codeDir: ~/nni/examples/trials/autofe-gbdt
-  classFileName: autofe_tunner.py
+  classFileName: autofe_tuner.py
   className: CustomerTuner
   classArgs:
     optimize_mode: maximize

@@ -50,28 +50,16 @@ if __name__ == '__main__':
     try:
         # get parameters from tuner
         RECEIVED_PARAMS = nni.get_next_parameter()
+        print(RECEIVED_PARAMS)
         # list is a column_name generate from tunner
         df = pd.read_csv(file_name)
-        if 'delete_feature' in RECEIVED_PARAMS.keys():
-            delete_col = RECEIVED_PARAMS['delete_feature']
-        else:
-            delete_col = []
         if 'sample_feature' in RECEIVED_PARAMS.keys():
             sample_col = RECEIVED_PARAMS['sample_feature']
         else:
             sample_col = []
+        # raw feaure + sample_feature
         df = name2feature(df, sample_col)
-        # df = get_default_parameters(df, RECEIVED_PARAMS['default_space'], delete_col, sample_col)
-        # if 'sample_feature' in RECEIVED_PARAMS.keys():
-        #     use_col = RECEIVED_PARAMS['sample_feature']
-        #     use_col += [target_name]
-        # else:
-        #use_col = list(df.columns) + [target_name]
-        print(df.columns)
         LOG.debug(RECEIVED_PARAMS)
-        #PARAMS.update(RECEIVED_PARAMS)
-        #LOG.debug(use_col) 
-        # attention ID and other Lable need to be specifiy
         feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
         nni.report_final_result({
             "default":val_score , 
