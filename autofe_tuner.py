@@ -44,6 +44,7 @@ class CustomerTuner(Tuner):
         self.feature_percent = feature_percent
         self.default_space = []
         self.epoch_importance = []
+        self.estimate_sample_prob = None
         logger.debug('init aufo-fe done.')
         return
 
@@ -57,15 +58,13 @@ class CustomerTuner(Tuner):
             return {'sample_feature': []}
         else:           
             sample_size = min(128, int(len(self.candidate_feature) * self.feature_percent))
-            print("candiata", self.candidate_feature)
             sample_feature = np.random.choice(
                 self.candidate_feature, 
                 size = sample_size, 
-                p = self.estimate_sample_prob, 
+                p = self.estimate_sample_prob / np.sum(self.estimate_sample_prob), 
                 replace = False
                 )
             gen_feature = list(sample_feature)
-            print(gen_feature)
             r = {'sample_feature': gen_feature}
             return r  
 
@@ -82,7 +81,7 @@ class CustomerTuner(Tuner):
             self.search_space = value['feature_importance']
             self.estimate_sample_prob = self.estimate_candidate_probility()
         else:
-            self.epoch_importance = self.epoch_importance.append(value['feature_importance'])
+            self.epoch_importance.append(value['feature_importance'])
             # TODO
             self.update_candidate_probility()
         reward = extract_scalar_reward(value)
@@ -115,7 +114,7 @@ class CustomerTuner(Tuner):
         # get last importance
         last_epoch_importance = self.epoch_importance[-1]
         last_sample_feature = list(last_epoch_importance.feature_name)
-        last_sample_feature_score = list(last_epoch_importance.score)
+        last_sample_feature_score = list(last_epoch_importance.feature_score)
         #self.
         return 
 
@@ -124,6 +123,7 @@ class CustomerTuner(Tuner):
         estimate_candidate_probility use history feature importance, first run importance.
         """
         raw_score_dict = self.impdf2dict()
+        print("debug impdf", raw_score_dict)
         gen_prob = []
         for i in self.candidate_feature:
             _feature = i.split('_')
