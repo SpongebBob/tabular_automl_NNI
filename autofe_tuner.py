@@ -115,7 +115,9 @@ class CustomerTuner(Tuner):
         last_epoch_importance = self.epoch_importance[-1]
         last_sample_feature = list(last_epoch_importance.feature_name)
         last_sample_feature_score = list(last_epoch_importance.feature_score)
-        #self.
+        for index, f in enumerate(self.candidate_feature):
+            if f in last_sample_feature:
+                self.estimate_sample_prob[index] = last_epoch_importance[last_epoch_importance.feature_name == f].feature_score
         return 
 
     def estimate_candidate_probility(self):
