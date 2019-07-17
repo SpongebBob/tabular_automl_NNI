@@ -47,3 +47,24 @@ Use `nni.report_final_result` to send final result to Tuner. Please noted **15**
 TODO
 ```
 
+**4)  Define your own feature engineer method **
+
+If you want to add a feature engineer operation, you should follow this instruction.
+Firstly, add json2space code in the tunner. 
+```python
+...
+if key == 'opname':
+    # give a fixed formax opname_colname, make sure "_" is not in column name.
+    name = 'opname_{}'.format(colname)
+result.apped(name)
+...	
+```
+Seconly, add name2feature code in the trail.
+```python
+...
+if gen_name.startwith('opname'):
+    col = parse(gen_name) #get the operated col name, such as count_col1 return col1
+    df[gen_name] = df[col].apply(lambda x: fe_opname(x))
+...
+```
+
