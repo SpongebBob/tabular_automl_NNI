@@ -36,7 +36,7 @@ class OptimizeMode(Enum):
     Maximize = 'maximize'
 
 
-class CustomerTuner(Tuner):
+class AutoFETuner(Tuner):
     def __init__(self, optimize_mode, feature_percent = 0.6):
         self.count = -1
         self.optimize_mode = OptimizeMode(optimize_mode)
