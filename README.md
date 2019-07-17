@@ -88,10 +88,10 @@ User import `nni` and use `nni.get_next_parameter()` to receive configure.
 ...
 if 'sample_feature' in RECEIVED_PARAMS.keys():
             sample_col = RECEIVED_PARAMS['sample_feature']
-        else:
-            sample_col = []
-        # raw feaure + sample_feature
-        df = name2feature(df, sample_col)
+else:
+    sample_col = []
+# raw feaure + sample_feature
+df = name2feature(df, sample_col)
 ...
 ```
 

@@ -9,9 +9,9 @@ searchSpacePath: search_space.json
 #choice: true, false
 useAnnotation: false
 tuner:
-  codeDir: ~/nni/examples/trials/autofe-gbdt
+  codeDir: ~/nni/examples/trials/tabular_automl_NNI
   classFileName: autofe_tuner.py
-  className: CustomerTuner
+  className: AutoFETuner
   classArgs:
     optimize_mode: maximize
 trial:
