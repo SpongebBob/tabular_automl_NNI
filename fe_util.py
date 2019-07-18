@@ -25,11 +25,7 @@ def concat(L):
         if result is None:
             result = l
         else:
-            try:
-                result[l.columns.tolist()] = l
-            except Exception as err:
-                print(err)
-                print(l.head())
+            result[l.columns.tolist()] = l
     return result
 
 def name2feature(df, feature_space):
@@ -77,3 +73,65 @@ def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'v
     r = left_merge(df, agg_result, on = [col])
     df = concat([df, r])
     return df
+
+def base_embedding(x, model, size):
+    vec = np.zeros(size)
+    x = [item for item in x if model.wv.__contains__(item)]
+    for item in x:
+        vec += model.wv[str(item)]
+    if len(x) == 0:
+        return vec
+    else:
+        return vec / len(x)
+
+
+def embedding_encode(df, col):
+    """
+    This is the tool for multi-categories embedding encode.
+    embedding for one single multi-categories column.
+    """
+    from gensim.models.word2vec import Word2Vec
+    input_ = df[col].fillna('NA').apply(lambda x: str(x).split(' '))
+    model = Word2Vec(input_, size=12, min_count=2, iter=5, window=5, workers=4)
+    data_vec = []
+    for row in input_:
+        data_vec.append(base_embedding(row, model, size=12))
+    svdT = TruncatedSVD(n_components=6)
+    data_vec = svdT.fit_transform(data_vec)
+    column_names = []
+    for i in range(6):
+        column_names.append('embedding_{}_{}'.format(col, i))
+    data_vec = pd.DataFrame(data_vec, columns=column_names)
+    df = pd.concat([df, data_vec], axis=1)
+    return df
+
+def add_noise(series, noise_level):
+    return series * (1 + noise_level * np.random.randn(len(series)))
+
+def add_smooth(series, p, a = 1):
+    return (series.sum() + p / series.count() + a)
+
+def target_encoding(df, col, target_name = 'label'):
+    """
+    target encoding  using 5 k-fold with smooth
+    """
+    df[col] = df[col].fillna('-9999999')
+    mean_of_target = df[target_name].mean()
+
+    kf = KFold(n_splits = 5, shuffle = True, random_state=2019)
+    col_mean_name = "target_{}".format(col)
+    X = df[df[target_name].isnull() == False].reset_index(drop=True)
+    X_te = df[df[target_name].isnull()].reset_index(drop=True)
+    X.loc[:, col_mean_name] = np.nan
+    
+    for tr_ind, val_ind in kf.split(X):
+        X_tr, X_val = X.iloc[tr_ind], X.iloc[val_ind]
+        X.loc[df.index[val_ind], col_mean_name] = X_val[col].map(X_tr.groupby(col)[target_name].apply(lambda x: add_smoth(x, 0.5, 1)))
+
+    tr_agg =  X[[col, target_name]].groupby([col])[target_name].apply(lambda x: add_smooth(x, 0.5, 1)).reset_index()#['label'].mean().reset_index()
+    tr_agg.columns = [col, col_mean_name]
+
+    X_te = X_te.merge(tr_agg, on = [col], how = 'left')
+    _s = np.array(pd.concat([X[col_mean_name], X_te[col_mean_name]]).fillna(mean_of_target))
+    df[col_mean_name] =  _s
+    return df[[col_mean_name]].fillna(-99999).astype(np.float32)
