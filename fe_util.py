@@ -74,7 +74,37 @@ def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'v
     df = concat([df, r])
     return df
 
+def agg_nunique_encode(df, id_col, col, stat_list = ['nunique']):
+    """
+    get id group_by(id) nunique
+    """
+    agg_dict = {}
+    for i in stat_list:
+        agg_dict['AGG_{}_{}_{}'.format(i, id_col, col)] = i
+    agg_result = df.groupby([col])[id_col].agg(agg_dict)
+    r = left_merge(df, agg_result, on = [col])
+    df = concat([df, r])
+    return df
+
+def agg_histgram_encode(df, id_col, col, stat_list = ['min', 'max', 'mean', 'median', 'var']):
+    """
+    get id group_by(id) histgram statitics
+    """
+    agg_dict = {}
+    for i in stat_list:
+        agg_dict['AGG_{}_{}_{}'.format(i, id_col, col)] = i
+    df['temp_count'] = df.groupby(id_col)[id_col].transform('count')
+    agg_result = df.groupby([col])['temp_count'].agg(agg_dict)
+    r = left_merge(df, agg_result, on = [col])
+    df = concat([df, r])
+    del df['temp_count']
+    return df
+
+
 def base_embedding(x, model, size):
+    """
+    embedding helper for bagofwords
+    """
     vec = np.zeros(size)
     x = [item for item in x if model.wv.__contains__(item)]
     for item in x:
@@ -106,9 +136,15 @@ def embedding_encode(df, col):
     return df
 
 def add_noise(series, noise_level):
+    """
+    target encoding smooth
+    """
     return series * (1 + noise_level * np.random.randn(len(series)))
 
 def add_smooth(series, p, a = 1):
+    """
+    target encoding smooth
+    """
     return (series.sum() + p / series.count() + a)
 
 def target_encoding(df, col, target_name = 'label'):
@@ -135,3 +171,4 @@ def target_encoding(df, col, target_name = 'label'):
     _s = np.array(pd.concat([X[col_mean_name], X_te[col_mean_name]]).fillna(mean_of_target))
     df[col_mean_name] =  _s
     return df[[col_mean_name]].fillna(-99999).astype(np.float32)
+
