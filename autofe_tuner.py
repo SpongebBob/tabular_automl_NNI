@@ -114,7 +114,7 @@ class AutoFETuner(Tuner):
         # get last importance
         last_epoch_importance = self.epoch_importance[-1]
         last_sample_feature = list(last_epoch_importance.feature_name)
-        last_sample_feature_score = list(last_epoch_importance.feature_score)
+        #last_sample_feature_score = list(last_epoch_importance.feature_score)
         for index, f in enumerate(self.candidate_feature):
             if f in last_sample_feature:
                 self.estimate_sample_prob[index] = last_epoch_importance[last_epoch_importance.feature_name == f].feature_score
@@ -167,19 +167,24 @@ class AutoFETuner(Tuner):
                         for stat in ['min', 'max', 'mean', 'median', 'var']:
                             name = 'AGG_{}_{}_{}'.format(stat, i, j)
                             result.append(name)
+            elif key == 'nunique':
+                for i in default_space[key][0]:
+                    for j in default_space[key][1]:
+                        name = 'NUNIQUE_{}_{}'.format(i, j)
+                        result.append(name)
+            elif key == 'histstat':
+                for i in default_space[key][0]:
+                    for j in default_space[key][1]:
+                        name = 'HISTSTAT_{}_{}'.format(i, j)
+                        result.append(name)
+            elif key == 'target':
+                for i in default_space[key]:
+                    name = 'TARGET_{}'.format(i)
+                    result.append(name) 
+            elif key == 'embedding':
+                for i in default_space[key]:
+                    name = 'EMBEDDING_{}'.format(i)
+                    result.append(name) 
             else:
                 raise RuntimeError('Not supported feature engeriner method!')
         return result
-
-# if __name__ =='__main__':
-#     with open('search_space.json', 'r') as myfile:
-#         data=myfile.read()
-#     data = json.loads(data)
-#     tuner = CustomerTuner(OptimizeMode.Maximize)
-#     tuner.update_search_space(data)
-#     #print(tuner.candidate_feature)
-#     config = tuner.generate_parameters(0)
-#     #print(config)
-#     with open('./data.json', 'w') as outfile:
-#         json.dump(config, outfile)
-#     tuner.receive_trial_result(0, config, 0.99)

@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np 
+from sklearn.model_selection import KFold
+from sklearn.decomposition import TruncatedSVD
 
 def left_merge(data1, data2, on):
+    """
+    merge util for dataframe
+    """
     if type(on) != list:
         on = [on]
     if (set(on) & set(data2.columns)) != set(on):
@@ -9,14 +14,14 @@ def left_merge(data1, data2, on):
     else:
         data2_temp = data2.copy()
     columns = [f for f in data2.columns if f not in on]
-    result = data1.merge(data2_temp,on=on,how='left')
+    result = data1.merge(data2_temp, on = on, how='left')
     result = result[columns]
     return result
 
 
 def concat(L):
     """
-    tools for concat new dataframe
+    tools for concat some dataframes into a new dataframe.
     """
     result = None
     for l in L:
@@ -28,7 +33,7 @@ def concat(L):
             result[l.columns.tolist()] = l
     return result
 
-def name2feature(df, feature_space):
+def name2feature(df, feature_space, target_name='label'):
     assert isinstance(feature_space, list)
     '''get default parameters, parse dict op, remove delecol'''
     for key in feature_space:
@@ -38,12 +43,28 @@ def name2feature(df, feature_space):
             df = count_encode(df, i)
         elif key.startswith('CROSSCOUNT'):
             '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            i , j = key.split('_')[-2:]
+            i, j = key.split('_')[-2:]
             df = cross_count_encode(df, [i, j])
         elif key.startswith('AGG'):
             '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
             stat, i, j =  key.split('_')[-3:]
             df = agg_encode(df, i, j, [stat])
+        elif key.startswith('NUNIQUE'):
+            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
+            i, j =  key.split('_')[-2:]
+            df = agg_nunique_encode(df, i, j)
+        elif key.startswith('HISTSTAT'):
+            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
+            i, j =  key.split('_')[-2:]
+            df = agg_histgram_encode(df, i, j)
+        elif key.startswith('TARGET'):
+            '''assert value is [c1,c2,c3,c4]'''
+            i = key.split('_')[-1]
+            df = target_encoding(df, i, target_name)
+        elif key.startswith('EMBEDDING'):
+            '''assert value is [m1]'''
+            i = key.split('_')[-1]
+            df = embedding_encode(df, i)
     return df
     
 def count_encode(df, col):
@@ -74,13 +95,12 @@ def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'v
     df = concat([df, r])
     return df
 
-def agg_nunique_encode(df, id_col, col, stat_list = ['nunique']):
+def agg_nunique_encode(df, id_col, col):
     """
     get id group_by(id) nunique
     """
     agg_dict = {}
-    for i in stat_list:
-        agg_dict['AGG_{}_{}_{}'.format(i, id_col, col)] = i
+    agg_dict['NUNIQUE_{}_{}'.format(id_col, col)] = 'nunique'
     agg_result = df.groupby([col])[id_col].agg(agg_dict)
     r = left_merge(df, agg_result, on = [col])
     df = concat([df, r])
@@ -92,7 +112,7 @@ def agg_histgram_encode(df, id_col, col, stat_list = ['min', 'max', 'mean', 'med
     """
     agg_dict = {}
     for i in stat_list:
-        agg_dict['AGG_{}_{}_{}'.format(i, id_col, col)] = i
+        agg_dict['HISTSTAT_{}_{}_{}'.format(i, id_col, col)] = i
     df['temp_count'] = df.groupby(id_col)[id_col].transform('count')
     agg_result = df.groupby([col])['temp_count'].agg(agg_dict)
     r = left_merge(df, agg_result, on = [col])
@@ -147,14 +167,14 @@ def add_smooth(series, p, a = 1):
     """
     return (series.sum() + p / series.count() + a)
 
-def target_encoding(df, col, target_name = 'label'):
+def target_encoding(df, col, target_name='label'):
     """
     target encoding  using 5 k-fold with smooth
     """
     df[col] = df[col].fillna('-9999999')
     mean_of_target = df[target_name].mean()
 
-    kf = KFold(n_splits = 5, shuffle = True, random_state=2019)
+    kf = KFold(n_splits = 5, shuffle = True, random_state=2019) 
     col_mean_name = "target_{}".format(col)
     X = df[df[target_name].isnull() == False].reset_index(drop=True)
     X_te = df[df[target_name].isnull()].reset_index(drop=True)
@@ -162,7 +182,7 @@ def target_encoding(df, col, target_name = 'label'):
     
     for tr_ind, val_ind in kf.split(X):
         X_tr, X_val = X.iloc[tr_ind], X.iloc[val_ind]
-        X.loc[df.index[val_ind], col_mean_name] = X_val[col].map(X_tr.groupby(col)[target_name].apply(lambda x: add_smoth(x, 0.5, 1)))
+        X.loc[df.index[val_ind], col_mean_name] = X_val[col].map(X_tr.groupby(col)[target_name].apply(lambda x: add_smooth(x, 0.5, 1)))
 
     tr_agg =  X[[col, target_name]].groupby([col])[target_name].apply(lambda x: add_smooth(x, 0.5, 1)).reset_index()#['label'].mean().reset_index()
     tr_agg.columns = [col, col_mean_name]
@@ -170,5 +190,5 @@ def target_encoding(df, col, target_name = 'label'):
     X_te = X_te.merge(tr_agg, on = [col], how = 'left')
     _s = np.array(pd.concat([X[col_mean_name], X_te[col_mean_name]]).fillna(mean_of_target))
     df[col_mean_name] =  _s
-    return df[[col_mean_name]].fillna(-99999).astype(np.float32)
+    return df
 

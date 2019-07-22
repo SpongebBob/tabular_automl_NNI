@@ -65,6 +65,10 @@ Search space is defined by json, following format:
     ]
 }
 ```
+We provide `count encoding`,`target encoding`,`embedding encoding` for `1-order-op` examples.
+We provude `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op` examples.
+ALL operations above are classic feature enginner methods. 
+
 Tuner receives this search space, and generates the feature space. Every trial selected original feature and some generated feature. 
 
 For example, we can define a frequency encoding (value count) method on columns {col1, col2} in the following way:
@@ -143,4 +147,11 @@ if gen_name.startwith('opname'):
     df[gen_name] = df[col].apply(lambda x: fe_opname(x))
 ...
 ```
+
+# Test example results on some binary classification dataset.
+|  Dataset   | baseline result  | automl result| 
+|  ----  | ----  | ----  |
+| Cretio Tiny  | 000 | 000 |
+| Cretio  | 000 | 000 |
+| talkingdata  | 000 | 000 |
 

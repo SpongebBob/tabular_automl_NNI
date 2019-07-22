@@ -32,10 +32,10 @@ LOG = logging.getLogger('sklearn_classification')
 def unit_test_fe():
     with open('search_space.json', 'r') as myfile:
         data=myfile.read()
-    df = pd.read_csv('train.tiny.csv')
-    json_config = json.loads(data)
-    result = name2feature(df, ["AGG_min_I9_C3", "COUNT_C20", "CROSSCOUNT_C1_C11"])
-    feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'Label', id_index = 'Id')
+    df = pd.read_csv('test_m.csv')
+    result = name2feature(df, ["EMBEDDING_m1"], 'label')
+    print(result)
+    feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'label', id_index = 'Id')
     print(feature_imp)
     print(val_score)
     exit()
@@ -57,11 +57,11 @@ if __name__ == '__main__':
         else:
             sample_col = []
         # raw feaure + sample_feature
-        df = name2feature(df, sample_col)
+        df = name2feature(df, sample_col, target_name)
         LOG.debug(RECEIVED_PARAMS)
         feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
         nni.report_final_result({
-            "default":val_score , 
+            "default":val_score, 
             "feature_importance":feature_imp
         })
     except Exception as exception:
