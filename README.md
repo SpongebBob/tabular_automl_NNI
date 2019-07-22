@@ -103,6 +103,7 @@ User import `nni` and use `nni.get_next_parameter()` to receive configure.
 
 ```python
 ...
+RECEIVED_PARAMS = nni.get_next_parameter()
 if 'sample_feature' in RECEIVED_PARAMS.keys():
             sample_col = RECEIVED_PARAMS['sample_feature']
 else:
@@ -151,7 +152,7 @@ if gen_name.startwith('opname'):
 # Test example results on some binary classification dataset.
 |  Dataset   | baseline result  | automl result| 
 |  ----  | ----  | ----  |
-| Cretio Tiny  | 000 | 000 |
+| Cretio Tiny  | 0.7516 | 0.7760 |
 | Cretio  | 000 | 000 |
 | talkingdata  | 000 | 000 |
 

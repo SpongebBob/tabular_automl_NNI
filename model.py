@@ -18,7 +18,7 @@ def get_fea_importance(clf, feature_name):
         'gain_percent':100 *gain / gain.sum(),
         'split_percent':100 *split_ / split_.sum(),
         })
-    importance_df['feature_score'] =  (0.3*  importance_df['gain_percent'].rank() + 0.7 * importance_df['split_percent'].rank() ) / len(importance_df)
+    importance_df['feature_score'] =  0.3*  importance_df['gain_percent'] + 0.7 * importance_df['split_percent'] 
     importance_df.loc[importance_df['split'] ==0, 'feature_score'] = 0
     importance_df['feature_score'] = importance_df['feature_score'] / importance_df['feature_score'].sum()
     importance_df = importance_df.sort_values('feature_score',ascending=False)

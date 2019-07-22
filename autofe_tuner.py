@@ -56,12 +56,13 @@ class AutoFETuner(Tuner):
         self.count += 1
         if self.count == 0:
             return {'sample_feature': []}
-        else:           
+        else:
+            sample_p = np.array(self.estimate_sample_prob) / np.sum(self.estimate_sample_prob)
             sample_size = min(128, int(len(self.candidate_feature) * self.feature_percent))
             sample_feature = np.random.choice(
                 self.candidate_feature, 
                 size = sample_size, 
-                p = self.estimate_sample_prob / np.sum(self.estimate_sample_prob), 
+                p = sample_p, 
                 replace = False
                 )
             gen_feature = list(sample_feature)
@@ -114,11 +115,12 @@ class AutoFETuner(Tuner):
         # get last importance
         last_epoch_importance = self.epoch_importance[-1]
         last_sample_feature = list(last_epoch_importance.feature_name)
-        #last_sample_feature_score = list(last_epoch_importance.feature_score)
         for index, f in enumerate(self.candidate_feature):
             if f in last_sample_feature:
-                self.estimate_sample_prob[index] = last_epoch_importance[last_epoch_importance.feature_name == f].feature_score
-        return 
+                score = max(float(last_epoch_importance[last_epoch_importance.feature_name == f]['feature_score']), 0.00001)
+                self.estimate_sample_prob[index] = score
+        print("debug UPDATE", self.estimate_sample_prob)
+
 
     def estimate_candidate_probility(self):
         """
@@ -130,7 +132,7 @@ class AutoFETuner(Tuner):
         for i in self.candidate_feature:
             _feature = i.split('_')
             score = [raw_score_dict[i] for i in _feature if i in raw_score_dict.keys()]
-            if len(_feature) == 1:
+            if len(score) == 1:
                 gen_prob.append(np.mean(score))
             else:
                 generate_score = np.mean(score) * 0.9 # TODO
