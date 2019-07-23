@@ -153,6 +153,6 @@ if gen_name.startwith('opname'):
 |  Dataset   | baseline result  | automl result| 
 |  ----  | ----  | ----  |
 | Cretio Tiny  | 0.7516 | 0.7760 |
-| titanic  | 0.870 | 0.884 |
+| titanic  | 0.8700 | 0.8867 |
 | talkingdata  | 000 | 000 |
 
