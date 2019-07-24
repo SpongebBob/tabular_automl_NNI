@@ -1,16 +1,21 @@
-# How to write a Trial and Tuner for tabular data running on NNI?
-*Tabular data is an arrangement of data in rows and columns, or possibly in a more complex structure. Usually we treat columns as features, rows as data. AutoML for tabular data automates feature engineering  feature selection, and hyper tunning on a wide range of tabular data primitives — such as numbers, categories, multi-categories, timestamps etc.*
+# How to use NNI to do Automatic Feature Engeering?
 
-In this example, it shows that how a simple autoML framework working on nni.
+## What is Tabular Data?
 
-Trial receives the generated and selected feature configure from Tuner, and send intermediate result to Assessor and some key information to Tuner, such as metrics, feature importance information.
+*Tabular data is an arrangement of data in rows and columns, or possibly in a more complex structure. Usually we treat columns as features, rows as data. AutoML for tabular data including automatic feature generation, feature selection, and hyper tunning on a wide range of tabular data primitives — such as numbers, categories, multi-categories, timestamps etc.*
 
-Tuner receives the key information to Tuner, such as metrics, feature importance information from trails.
-then decide what feature to be generated and selected in next step.
+## Quick Start
+
+In this example, we will shows that how to do automatic feature engeering on nni.
+
+The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will decide what feature to be generated, accroding to the definiton of search space.
+
+*Trial* receives the the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general sdk to generate features. After evaluate performence by adding these features, *Trial* will report the final metric to the Tuner.
+
 
 So when user want to write a tabular autoML tool running on NNI, she/he should:
 
-**1)Have an original Trial could run**,
+**1) Have an original Trial could run**,
 
 Trial's code could be any machine learning code that could run in local. He/She need to parse one fixed format feature name in order to generated a feature. Here we use `main.py` as example:
 
@@ -22,26 +27,23 @@ if __name__ == '__main__':
     file_name = 'train.tiny.csv'
     target_name = 'Label'
     id_index = 'Id'
-    try:
-        # get parameters from tuner
-        RECEIVED_PARAMS = nni.get_next_parameter()
-        print(RECEIVED_PARAMS)
-        # list is a column_name generate from tuner
-        df = pd.read_csv(file_name)
-        if 'sample_feature' in RECEIVED_PARAMS.keys():
-            sample_col = RECEIVED_PARAMS['sample_feature']
-        else:
-            sample_col = []
-        df = name2feature(df, sample_col)
-        LOG.debug(RECEIVED_PARAMS)
-        feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
-        nni.report_final_result({
-            "default":val_score , 
-            "feature_importance":feature_imp
-        })
-    except Exception as exception:
-        LOG.exception(exception)
-        raise
+
+    # get parameters from tuner
+    RECEIVED_PARAMS = nni.get_next_parameter()
+    print(RECEIVED_PARAMS)
+    # list is a column_name generate from tuner
+    df = pd.read_csv(file_name)
+    if 'sample_feature' in RECEIVED_PARAMS.keys():
+        sample_col = RECEIVED_PARAMS['sample_feature']
+    else:
+        sample_col = []
+    df = name2feature(df, sample_col)
+    LOG.debug(RECEIVED_PARAMS)
+    feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
+    nni.report_final_result({
+        "default":val_score , 
+        "feature_importance":feature_imp
+    })
 
 ```
 

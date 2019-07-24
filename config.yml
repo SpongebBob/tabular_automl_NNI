@@ -1,8 +1,8 @@
 authorName: default
 experimentName: example-auto-fe
 trialConcurrency: 1
-maxExecDuration: 1h
-maxTrialNum: 100
+maxExecDuration: 10h
+maxTrialNum: 2000
 #choice: local, remote
 trainingServicePlatform: local
 searchSpacePath: search_space.json
