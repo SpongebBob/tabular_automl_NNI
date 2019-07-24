@@ -32,10 +32,29 @@ We offer many operations which could automaticlly generate new features, which l
 @mengjiao same here.
 
 ## How to use it?
+We just need to decide use which Op and the corresponding column name in search_space.json like:
 
-
+```json
+{
+    "1-order-op" : [
+            col1,
+            col2
+        ],
+    "2-order-op" : [
+        [
+            col1,
+            col2
+        ], [
+            col3, 
+            col4
+        ]
+    ]
+}
+```
 
 # How to define an Op by yourself?
+
+@mengjiao user need to consider implement the OP_function in fe_util.py? Do we miss this step here?
 
 Firstly, add json2space code in the tuner. 
 ```python
