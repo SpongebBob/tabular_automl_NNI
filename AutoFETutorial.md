@@ -10,6 +10,8 @@ In this example, we will shows that how to do automatic feature engeering on nni
 
 The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will decide what feature to be generated, accroding to the definiton of search space.
 
+@mengjiao could you give a short description to *AutoFETuner*'s logic?
+
 *Trial* receives the the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general sdk to generate features. After evaluate performence by adding these features, *Trial* will report the final metric to the Tuner.
 
 
@@ -73,7 +75,7 @@ Search space could be defined in a json file, format as following:
 }
 ```
 We provide `count encoding`,`target encoding`,`embedding encoding` for `1-order-op` examples.
-We provude `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op` examples.
+We provide `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op` examples.
 All operations above are classic feature enginner methods, and the detail in [here](./AutoFEOp.md). 
 
 *Tuner* receives this search space, and generates the feature calling SDK *fe_util*.
@@ -140,15 +142,20 @@ nni.report_final_result({
 
 If you want to add a feature engineer operation, you should follow the  instruction in [here](./AutoFEOp.md). 
 
+@mengjiao refine this doc.
 
 # Benchmark
 
 We test some binary-classfiaction benchmarks which from open-resource.
 
 The experiment setting is:
-how long? how many trials? 
+@mengjiao how long? how many trials? machine configure?
 
 The baseline and the result as folloing:
+
+@mengjiao result is acc?
+
+@mengjiao could you add more benchmark here? Also merge the code of these benchmark.
 
 |  Dataset   | baseline acc  | automl acc| 
 |  ----  | ----  | ----  |
