@@ -15,11 +15,12 @@ The tuner call *AutoFETuner* first will generate a command that to ask *Trial* t
 
 So when user want to write a tabular autoML tool running on NNI, she/he should:
 
-**1) Have an original Trial could run**,
+**1) Have an Trial code to run**
 
-Trial's code could be any machine learning code that could run in local. He/She need to parse one fixed format feature name in order to generated a feature. Here we use `main.py` as example:
+Trial's code could be any machine learning code. 
+Here we use `main.py` as example:
 
-```python
+```diff
 import nni
 
 
@@ -28,26 +29,29 @@ if __name__ == '__main__':
     target_name = 'Label'
     id_index = 'Id'
 
-    # get parameters from tuner
-    RECEIVED_PARAMS = nni.get_next_parameter()
-    print(RECEIVED_PARAMS)
-    # list is a column_name generate from tuner
+    # read original data from csv file
     df = pd.read_csv(file_name)
-    if 'sample_feature' in RECEIVED_PARAMS.keys():
-        sample_col = RECEIVED_PARAMS['sample_feature']
-    else:
-        sample_col = []
-    df = name2feature(df, sample_col)
-    LOG.debug(RECEIVED_PARAMS)
-    feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
-    nni.report_final_result({
-        "default":val_score , 
-        "feature_importance":feature_imp
-    })
 
+    # get parameters from tuner
++   RECEIVED_FEATURE_CANDIDATES = nni.get_next_parameter()
+
++    if 'sample_feature' in RECEIVED_FEATURE_CANDIDATES.keys():
++        sample_col = RECEIVED_FEATURE_CANDIDATES['sample_feature']
++    # return 'feature_importance' to tuner in first iteration
++    else:
++        sample_col = []
++    df = name2feature(df, sample_col)
+
+    feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
+
++    # send final result to Tuner
++    nni.report_final_result({
++        "default":val_score , 
++        "feature_importance":feature_imp
+    })
 ```
 
-**2)Give an search space**,
+**2) Give an search space**
 
 Search space is defined by json, following format: 
 ```json
