@@ -38,10 +38,10 @@ class AutoFETuner(Tuner):
         count : 
         optimize_mode : contains "Maximize" or "Minimize" mode.
         search_space : define which features that tuner need to search
-        feature_percent :
-        default_space : 
-        epoch_importance :
-        estimate_sample_prob :  
+        feature_percent : @mengjiao
+        default_space : @mengjiao 
+        epoch_importance : @mengjiao
+        estimate_sample_prob : @mengjiao
         """
         self.count = -1
         self.optimize_mode = OptimizeMode(optimize_mode)
@@ -134,7 +134,7 @@ class AutoFETuner(Tuner):
         estimate_candidate_probility use history feature importance, first run importance.
         """
         raw_score_dict = self.impdf2dict()
-        print("debug impdf", raw_score_dict)
+        logger.debug("DEBUG feature importance\n", raw_score_dict)
         gen_prob = []
         for i in self.candidate_feature:
             _feature = i.split('_')
@@ -148,12 +148,12 @@ class AutoFETuner(Tuner):
 
 
     def impdf2dict(self):
-        d= dict([(i,j) for i,j in zip(self.search_space.feature_name, self.search_space.feature_score)])
-        return d 
+        return dict([(i,j) for i,j in zip(self.search_space.feature_name, self.search_space.feature_score)])
 
 
     def json2space(self, default_space):
         """
+        @mengjiao can you refine this part?
         """
         result = []
         for key in default_space.keys():

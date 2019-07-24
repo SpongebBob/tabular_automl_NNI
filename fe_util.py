@@ -171,6 +171,7 @@ def embedding_encode(df, col):
     embedding for one single multi-categories column.
     """
     from gensim.models.word2vec import Word2Vec
+
     input_ = df[col].fillna('NA').apply(lambda x: str(x).split(' '))
     model = Word2Vec(input_, size=12, min_count=2, iter=5, window=5, workers=4)
     data_vec = []
@@ -203,6 +204,8 @@ def add_smooth(series, p, a = 1):
 def target_encoding(df, col, target_name='label'):
     """
     target encoding  using 5 k-fold with smooth
+
+    target_name : @mengjiao
     """
     df[col] = df[col].fillna('-9999999')
     mean_of_target = df[target_name].mean()

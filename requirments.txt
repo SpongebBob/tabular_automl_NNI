@@ -3,3 +3,4 @@ pandas
 numpy
 sklearn
 nni
+gensim
