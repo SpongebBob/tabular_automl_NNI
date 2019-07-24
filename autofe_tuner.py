@@ -25,19 +25,24 @@ from itertools import combinations
 from enum import Enum, unique
 
 from nni.tuner import Tuner
-from nni.utils import extract_scalar_reward
+from nni.utils import extract_scalar_reward, OptimizeMode
 
-logger = logging.getLogger('autofe-tunner')
+from const import FeatureType, AGGREGATE_TYPE
 
-
-
-class OptimizeMode(Enum):
-    Minimize = 'minimize'
-    Maximize = 'maximize'
+logger = logging.getLogger('autofe-tuner')
 
 
 class AutoFETuner(Tuner):
     def __init__(self, optimize_mode, feature_percent = 0.6):
+        """Initlization function
+        count : 
+        optimize_mode : contains "Maximize" or "Minimize" mode.
+        search_space : define which features that tuner need to search
+        feature_percent :
+        default_space : 
+        epoch_importance :
+        estimate_sample_prob :  
+        """
         self.count = -1
         self.optimize_mode = OptimizeMode(optimize_mode)
         self.search_space = None
@@ -45,8 +50,8 @@ class AutoFETuner(Tuner):
         self.default_space = []
         self.epoch_importance = []
         self.estimate_sample_prob = None
+
         logger.debug('init aufo-fe done.')
-        return
 
 
     def generate_parameters(self, parameter_id, **kwargs):
@@ -75,7 +80,7 @@ class AutoFETuner(Tuner):
         Record an observation of the objective function
         parameter_id : int
         parameters : dict of parameters
-        value: final metrics of the trial, including reward
+        value: final metrics of the trial
         '''
         # get the default feature importance
         if self.search_space is None:
@@ -94,6 +99,7 @@ class AutoFETuner(Tuner):
         logger.debug(str(reward))
         return
 
+
     def update_search_space(self, data):
         '''
         Input: data, search space object.
@@ -103,7 +109,7 @@ class AutoFETuner(Tuner):
             'op1_op2' : [col1, col2, ....]
         }
         '''
-        #self.search_space = data
+
         self.default_space = data
         self.candidate_feature = self.json2space(data)
 
@@ -119,7 +125,8 @@ class AutoFETuner(Tuner):
             if f in last_sample_feature:
                 score = max(float(last_epoch_importance[last_epoch_importance.feature_name == f]['feature_score']), 0.00001)
                 self.estimate_sample_prob[index] = score
-        print("debug UPDATE", self.estimate_sample_prob)
+        
+        logger.debug("Debug UPDATE ", self.estimate_sample_prob)
 
 
     def estimate_candidate_probility(self):
@@ -138,55 +145,61 @@ class AutoFETuner(Tuner):
                 generate_score = np.mean(score) * 0.9 # TODO
                 gen_prob.append(generate_score)
         return gen_prob
- 
-    
+
+
     def impdf2dict(self):
         d= dict([(i,j) for i,j in zip(self.search_space.feature_name, self.search_space.feature_score)])
         return d 
 
+
     def json2space(self, default_space):
         """
-        You Need to add name format and parse mthod in fe_util.py,
-        if you want to add more feature generated methods.
         """
         result = []
         for key in default_space.keys():
-            if key == 'count':
+            if key == FeatureType.COUNT:
                 for i in default_space[key]:
-                    name = 'COUNT_{}'.format(i)
+                    name = (FeatureType.COUNT + '_{}').format(i)
                     result.append(name)         
-            elif key == 'crosscount':
+            
+            elif key == FeatureType.CROSSCOUNT:
                 for i in default_space[key][0]:
                     for j in default_space[key][1]:
                         if i == j:
                             continue
                         cross = [i,j] 
                         cross.sort()
-                        name = "CROSSCOUNT_"+ '_'.join(cross)
-            elif key == 'aggregate':
+                        name = (FeatureType.CROSSCOUNT + '_').join(cross)
+            
+            elif key == FeatureType.AGGREGATE:
                 for i in default_space[key][0]:
                     for j in default_space[key][1]:
-                        for stat in ['min', 'max', 'mean', 'median', 'var']:
-                            name = 'AGG_{}_{}_{}'.format(stat, i, j)
+                        for stat in AGGREGATE_TYPE:
+                            name = (FeatureType.AGGREGATE + '_{}_{}_{}').format(stat, i, j)
                             result.append(name)
-            elif key == 'nunique':
+            
+            elif key == FeatureType.NUNIQUE:
                 for i in default_space[key][0]:
                     for j in default_space[key][1]:
-                        name = 'NUNIQUE_{}_{}'.format(i, j)
+                        name = (FeatureType.NUNIQUE + '_{}_{}').format(i, j)
                         result.append(name)
-            elif key == 'histstat':
+            
+            elif key == FeatureType.HISTSTAT:
                 for i in default_space[key][0]:
                     for j in default_space[key][1]:
-                        name = 'HISTSTAT_{}_{}'.format(i, j)
+                        name = (FeatureType.HISTSTAT + '_{}_{}').format(i, j)
                         result.append(name)
-            elif key == 'target':
+            
+            elif key == FeatureType.TARGET:
                 for i in default_space[key]:
-                    name = 'TARGET_{}'.format(i)
+                    name = (FeatureType.TARGET + '_{}').format(i)
                     result.append(name) 
-            elif key == 'embedding':
+            
+            elif key == FeatureType.EMBEDDING:
                 for i in default_space[key]:
-                    name = 'EMBEDDING_{}'.format(i)
+                    name = (FeatureType.EMBEDDING + '_{}').format(i)
                     result.append(name) 
+            
             else:
-                raise RuntimeError('Not supported feature engeriner method!')
+                raise RuntimeError('feature ' + str(key) + ' Not supported now')
         return result

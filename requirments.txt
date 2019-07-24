@@ -1,2 +1,5 @@
 lightgbm
 pandas
+numpy
+sklearn
+nni
