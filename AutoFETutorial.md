@@ -51,9 +51,10 @@ if __name__ == '__main__':
     })
 ```
 
-**2) Give an search space**
+**2) Define a search space**
 
-Search space is defined by json, following format: 
+Search space could be defined in a json file, format as following: 
+
 ```json
 {
     "1-order-op" : [
@@ -73,11 +74,12 @@ Search space is defined by json, following format:
 ```
 We provide `count encoding`,`target encoding`,`embedding encoding` for `1-order-op` examples.
 We provude `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op` examples.
-ALL operations above are classic feature enginner methods. 
+All operations above are classic feature enginner methods, and the detail in [here](./AutoFEOp.md). 
 
-Tuner receives this search space, and generates the feature space. Every trial selected original feature and some generated feature. 
+*Tuner* receives this search space, and generates the feature calling SDK *fe_util*.
 
-For example, we can define a frequency encoding (value count) method on columns {col1, col2} in the following way:
+For example, we want to search the features which is a frequency encoding (value count) features on columns name {col1, col2}, in the following way:
+
 ```json
 {
     "COUNT" : [
@@ -86,7 +88,9 @@ For example, we can define a frequency encoding (value count) method on columns 
     ],
 }
 ```
+
 For example, we can define a cross frequency encoding (value count on cross dims) method on columns {col1, col2} × {col3, col4} in the following way:
+
 ```json
 {
     "CROSSCOUNT" : [
@@ -102,8 +106,7 @@ For example, we can define a cross frequency encoding (value count on cross dims
 }
 ```
 
-
-**3)Get configure from Tuner**
+**3) Get configure from Tuner**
 
 User import `nni` and use `nni.get_next_parameter()` to receive configure. 
 
@@ -120,7 +123,7 @@ df = name2feature(df, sample_col)
 ```
 
 
-**4)  Send result and key information to tunner**
+**4)  Send result metric and feature importance to tunner**
 
 Use `nni.report_final_result` to send final result to Tuner. Please noted **15** line in the following code.
 
@@ -133,30 +136,21 @@ nni.report_final_result({
 })
 ```
 
-**4)  Define your own feature engineer method**
+**4) Extend the SDK of feature engineer method**
 
-If you want to add a feature engineer operation, you should follow this instruction.
-Firstly, add json2space code in the tuner. 
-```python
-...
-if key == 'opname':
-    # give a fixed format opname_colname, make sure that "_" is not in column name.
-    name = 'opname_{}'.format(colname)
-result.append(name)
-...	
-```
-Seconly, add name2feature code in the trail.
-```python
-...
-if gen_name.startwith('opname'):
-    col = parse(gen_name) 
-    #get the operated col name, such as count_col1 return col1
-    df[gen_name] = df[col].apply(lambda x: fe_opname(x))
-...
-```
+If you want to add a feature engineer operation, you should follow the  instruction in [here](./AutoFEOp.md). 
 
-# Test example results on some binary classification dataset.
-|  Dataset   | baseline result  | automl result| 
+
+# Benchmark
+
+We test some binary-classfiaction benchmarks which from open-resource.
+
+The experiment setting is:
+how long? how many trials? 
+
+The baseline and the result as folloing:
+
+|  Dataset   | baseline acc  | automl acc| 
 |  ----  | ----  | ----  |
 | Cretio Tiny  | 0.7516 | 0.7760 |
 | titanic  | 0.8700 | 0.8867 |
