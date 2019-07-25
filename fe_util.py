@@ -56,46 +56,30 @@ def concat(L):
 
 def name2feature(df, feature_space, target_name='label'):
     assert isinstance(feature_space, list)
-    '''get default parameters, parse dict op, remove delecol'''
+
     for key in feature_space:
-        if key.startswith(FeatureType.COUNT):
-            '''assert value is [c1,c2,c3,c4]'''
-            i = key.split('_')[-1]
-            df = count_encode(df, i)
+        temp = key.split('_')
+        assert len(temp) > 1
 
-        elif key.startswith(FeatureType.CROSSCOUNT):
-            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            i, j = key.split('_')[-2:]
-            df = cross_count_encode(df, [i, j])
+        op_name = temp[0]
+        if len(temp) == 2:
+            i = temp[1]
+            command = op_name + '(df, i)'
+        elif len(temp) == 3:
+            i, j = temp[1], temp[2]
+            command = op_name + '(df, [i, j])'
+        elif len(temp) == 4:
+            stat, i, j = temp[1], temp[2], temp[3]
+            command = op_name + '(df, i, j, [stat])'
+        else:
+            raise RuntimeError('Do not support this OP: ' + str(key))
 
-        elif key.startswith(FeatureType.AGGREGATE):
-            '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
-            stat, i, j =  key.split('_')[-3:]
-            df = agg_encode(df, i, j, [stat])
-
-        elif key.startswith(FeatureType.NUNIQUE):
-            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            i, j =  key.split('_')[-2:]
-            df = agg_nunique_encode(df, i, j)
-
-        elif key.startswith(FeatureType.HISTSTAT):
-            '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
-            i, j =  key.split('_')[-2:]
-            df = agg_histgram_encode(df, i, j)
-
-        elif key.startswith(FeatureType.TARGET):
-            '''assert value is [c1,c2,c3,c4]'''
-            i = key.split('_')[-1]
-            df = target_encoding(df, i, target_name)
-
-        elif key.startswith(FeatureType.EMBEDDING):
-            '''assert value is [m1]'''
-            i = key.split('_')[-1]
-            df = embedding_encode(df, i)
+        df = eval(command)
+    
     return df
 
 
-def count_encode(df, col):
+def count(df, col):
     """
     tools for count encode
     """
@@ -103,7 +87,7 @@ def count_encode(df, col):
     return df
 
 
-def cross_count_encode(df, col_list):
+def crosscount(df, col_list):
     """
     tools for multy thread bi_count
     """
@@ -114,7 +98,7 @@ def cross_count_encode(df, col_list):
     return df
 
 
-def agg_encode(df, num_col, col, stat_list = AGGREGATE_TYPE):
+def aggregate(df, num_col, col, stat_list = AGGREGATE_TYPE):
     agg_dict = {}
     for i in stat_list:
         agg_dict['AGG_{}_{}_{}'.format(i, num_col, col)] = i
@@ -124,7 +108,7 @@ def agg_encode(df, num_col, col, stat_list = AGGREGATE_TYPE):
     return df
 
 
-def agg_nunique_encode(df, id_col, col):
+def nunique(df, id_col, col):
     """
     get id group_by(id) nunique
     """
@@ -136,7 +120,7 @@ def agg_nunique_encode(df, id_col, col):
     return df
 
 
-def agg_histgram_encode(df, id_col, col, stat_list = AGGREGATE_TYPE):
+def histstat(df, id_col, col, stat_list = AGGREGATE_TYPE):
     """
     get id group_by(id) histgram statitics
     """
@@ -165,7 +149,7 @@ def base_embedding(x, model, size):
         return vec / len(x)
 
 
-def embedding_encode(df, col):
+def embedding(df, col):
     """
     This is the tool for multi-categories embedding encode.
     embedding for one single multi-categories column.
@@ -201,7 +185,7 @@ def add_smooth(series, p, a = 1):
     return (series.sum() + p / series.count() + a)
 
 
-def target_encoding(df, col, target_name='label'):
+def target(df, col, target_name='label'):
     """
     target encoding  using 5 k-fold with smooth
 

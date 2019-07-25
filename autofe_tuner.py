@@ -33,7 +33,7 @@ logger = logging.getLogger('autofe-tuner')
 
 
 class AutoFETuner(Tuner):
-    def __init__(self, optimize_mode, feature_percent = 0.6):
+    def __init__(self, optimize_mode = 'maximize', feature_percent = 0.6):
         """Initlization function
         count : 
         optimize_mode : contains "Maximize" or "Minimize" mode.
@@ -83,6 +83,7 @@ class AutoFETuner(Tuner):
         value: final metrics of the trial
         '''
         # get the default feature importance
+
         if self.search_space is None:
             self.search_space = value['feature_importance']
             self.estimate_sample_prob = self.estimate_candidate_probility()
@@ -94,9 +95,9 @@ class AutoFETuner(Tuner):
         if self.optimize_mode is OptimizeMode.Minimize:
             reward = -reward
 
-        logger.debug('receive trial result is:\n')
-        logger.debug(str(parameters))
-        logger.debug(str(reward))
+        logger.info('receive trial result is:\n')
+        logger.info(str(parameters))
+        logger.info(str(reward))
         return
 
 
@@ -135,6 +136,7 @@ class AutoFETuner(Tuner):
         """
         raw_score_dict = self.impdf2dict()
         logger.debug("DEBUG feature importance\n", raw_score_dict)
+
         gen_prob = []
         for i in self.candidate_feature:
             _feature = i.split('_')
