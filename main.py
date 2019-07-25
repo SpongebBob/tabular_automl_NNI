@@ -27,7 +27,7 @@ import json
 from fe_util import *
 from model import *
 
-LOG = logging.getLogger('sklearn_classification')
+logger = logging.getLogger('auto-fe-examples')
 
 if __name__ == '__main__':
     file_name = 'train.tiny.csv'

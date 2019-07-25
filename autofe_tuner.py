@@ -169,7 +169,7 @@ class AutoFETuner(Tuner):
                             continue
                         cross = [i,j] 
                         cross.sort()
-                        name = (FeatureType.CROSSCOUNT + '_').join(cross)
+                        name = (FeatureType.CROSSCOUNT + '_') + '_'.join(cross)
             
             elif key == FeatureType.AGGREGATE:
                 for i in default_space[key][0]:
