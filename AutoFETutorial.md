@@ -6,13 +6,19 @@
 
 ## Quick Start
 
-In this example, we will shows that how to do automatic feature engeering on nni.
+In this example, we will shows that how to do automatic feature engineering on nni.
 
-The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will decide what feature to be generated, accroding to the definiton of search space.
+We treat the automatic feature engineering(auto-fe) as a two steps task. *feature generation exploration* and *feature selection*.
 
-@mengjiao could you give a short description to *AutoFETuner*'s logic?
+We give an simple example.
 
-*Trial* receives the the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general sdk to generate features. After evaluate performence by adding these features, *Trial* will report the final metric to the Tuner.
+The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will estimate a feature importance ranking and decide what feature to be generated, according to the definition of search space.
+
+In the following iterations(2nd +), *AutoFETuner* updates the estimated feature importance ranking.
+
+If you are interested in contributing to the *AutoFETuner* algorithm, such as Reinforcement Learning(RL) and genetic algorithm (GA),you are welcomed to propose proposal and pull request.  Interface `update_candidate_probility()` can be used to update feature sample probability and `epoch_importance` maintains the all iterations feature importance.
+
+*Trial* receives the the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general sdk to generate features. After evaluate performance by adding these features, *Trial* will report the final metric to the Tuner.
 
 
 So when user want to write a tabular autoML tool running on NNI, she/he should:
@@ -142,24 +148,17 @@ nni.report_final_result({
 
 If you want to add a feature engineer operation, you should follow the  instruction in [here](./AutoFEOp.md). 
 
-@mengjiao refine this doc.
-
 # Benchmark
 
 We test some binary-classfiaction benchmarks which from open-resource.
 
-The experiment setting is:
-@mengjiao how long? how many trials? machine configure?
+The experiment setting is given in the `./test_config/test_name/search_sapce.json` :
 
-The baseline and the result as folloing:
+The baseline and the result as following:
 
-@mengjiao result is acc?
-
-@mengjiao could you add more benchmark here? Also merge the code of these benchmark.
-
-|  Dataset   | baseline acc  | automl acc| 
-|  ----  | ----  | ----  |
-| Cretio Tiny  | 0.7516 | 0.7760 |
-| titanic  | 0.8700 | 0.8867 |
-| talkingdata  | 000 | 000 |
+|  Dataset   | baseline auc  | automl auc| dataset link| 
+|  ----  | ----  | ----  | ----  |
+| Cretio Tiny  | 0.7516 | 0.7760 |[here](./AutoFEOp.md) |
+| titanic  | 0.8700 | 0.8867 |[here](./AutoFEOp.md) |
+| talkingdata  | 0000 | 0000 |[here](./AutoFEOp.md) |
 
