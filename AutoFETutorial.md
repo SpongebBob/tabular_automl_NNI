@@ -10,7 +10,7 @@ In this example, we will shows that how to do automatic feature engineering on n
 
 We treat the automatic feature engineering(auto-fe) as a two steps task. *feature generation exploration* and *feature selection*.
 
-We give an simple example.
+We give a simple example.
 
 The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will estimate a feature importance ranking and decide what feature to be generated, according to the definition of search space.
 
@@ -158,7 +158,7 @@ The baseline and the result as following:
 
 |  Dataset   | baseline auc  | automl auc| dataset link| 
 |  ----  | ----  | ----  | ----  |
-| Cretio Tiny  | 0.7516 | 0.7760 |[here](./AutoFEOp.md) |
-| titanic  | 0.8700 | 0.8867 |[here](./AutoFEOp.md) |
-| talkingdata  | 0000 | 0000 |[here](./AutoFEOp.md) |
+| Cretio Tiny  | 0.7516 | 0.7760 |[to be updated](./AutoFEOp.md) |
+| titanic  | 0.8700 | 0.8867 |[to be updated](./AutoFEOp.md) |
+| talkingdata  | 0000 | 0000 |[to be updated](./AutoFEOp.md) |
 
