@@ -29,41 +29,26 @@ from model import *
 
 LOG = logging.getLogger('sklearn_classification')
 
-def unit_test_fe():
-    with open('search_space.json', 'r') as myfile:
-        data=myfile.read()
-    df = pd.read_csv('test_m.csv')
-    result = name2feature(df, ["EMBEDDING_m1"], 'label')
-    print(result)
-    feature_imp, val_score = lgb_model_train(result,  _epoch = 1000, target_name = 'label', id_index = 'Id')
-    print(feature_imp)
-    print(val_score)
-    exit()
-    
-
 if __name__ == '__main__':
-    #unit_test_fe()
     file_name = 'train.tiny.csv'
     target_name = 'Label'
     id_index = 'Id'
-    try:
-        # get parameters from tuner
-        RECEIVED_PARAMS = nni.get_next_parameter()
-        print(RECEIVED_PARAMS)
-        # list is a column_name generate from tunner
-        df = pd.read_csv(file_name)
-        if 'sample_feature' in RECEIVED_PARAMS.keys():
-            sample_col = RECEIVED_PARAMS['sample_feature']
-        else:
-            sample_col = []
-        # raw feaure + sample_feature
-        df = name2feature(df, sample_col, target_name)
-        LOG.debug(RECEIVED_PARAMS)
-        feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
-        nni.report_final_result({
-            "default":val_score, 
-            "feature_importance":feature_imp
-        })
-    except Exception as exception:
-        LOG.exception(exception)
-        raise
+
+    # get parameters from tuner
+    RECEIVED_PARAMS = nni.get_next_parameter()
+    logger.info("Received params:\n", RECEIVED_PARAMS)
+    
+    # list is a column_name generate from tuner
+    df = pd.read_csv(file_name)
+    if 'sample_feature' in RECEIVED_PARAMS.keys():
+        sample_col = RECEIVED_PARAMS['sample_feature']
+    else:
+        sample_col = []
+    
+    # raw feaure + sample_feature
+    df = name2feature(df, sample_col, target_name)
+    feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
+    nni.report_final_result({
+        "default":val_score, 
+        "feature_importance":feature_imp
+    })

@@ -1,15 +1,15 @@
 authorName: default
 experimentName: example-auto-fe
 trialConcurrency: 1
-maxExecDuration: 1h
-maxTrialNum: 100
+maxExecDuration: 10h
+maxTrialNum: 2000
 #choice: local, remote
 trainingServicePlatform: local
 searchSpacePath: search_space.json
 #choice: true, false
 useAnnotation: false
 tuner:
-  codeDir: ~/nni/examples/trials/tabular_automl_NNI
+  codeDir: .
   classFileName: autofe_tuner.py
   className: AutoFETuner
   classArgs:

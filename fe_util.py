@@ -1,7 +1,27 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import pandas as pd
 import numpy as np 
 from sklearn.model_selection import KFold
 from sklearn.decomposition import TruncatedSVD
+
+from const import FeatureType, AGGREGATE_TYPE
+
 
 def left_merge(data1, data2, on):
     """
@@ -33,40 +53,48 @@ def concat(L):
             result[l.columns.tolist()] = l
     return result
 
+
 def name2feature(df, feature_space, target_name='label'):
     assert isinstance(feature_space, list)
     '''get default parameters, parse dict op, remove delecol'''
     for key in feature_space:
-        if key.startswith('COUNT'):
+        if key.startswith(FeatureType.COUNT):
             '''assert value is [c1,c2,c3,c4]'''
             i = key.split('_')[-1]
             df = count_encode(df, i)
-        elif key.startswith('CROSSCOUNT'):
+
+        elif key.startswith(FeatureType.CROSSCOUNT):
             '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
             i, j = key.split('_')[-2:]
             df = cross_count_encode(df, [i, j])
-        elif key.startswith('AGG'):
+
+        elif key.startswith(FeatureType.AGGREGATE):
             '''assert value is [[n1,n2,n3],[c1,c2,c3]]'''
             stat, i, j =  key.split('_')[-3:]
             df = agg_encode(df, i, j, [stat])
-        elif key.startswith('NUNIQUE'):
+
+        elif key.startswith(FeatureType.NUNIQUE):
             '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
             i, j =  key.split('_')[-2:]
             df = agg_nunique_encode(df, i, j)
-        elif key.startswith('HISTSTAT'):
+
+        elif key.startswith(FeatureType.HISTSTAT):
             '''assert value is [[c1,c2,c3],[c4,c5,c6]]'''
             i, j =  key.split('_')[-2:]
             df = agg_histgram_encode(df, i, j)
-        elif key.startswith('TARGET'):
+
+        elif key.startswith(FeatureType.TARGET):
             '''assert value is [c1,c2,c3,c4]'''
             i = key.split('_')[-1]
             df = target_encoding(df, i, target_name)
-        elif key.startswith('EMBEDDING'):
+
+        elif key.startswith(FeatureType.EMBEDDING):
             '''assert value is [m1]'''
             i = key.split('_')[-1]
             df = embedding_encode(df, i)
     return df
-    
+
+
 def count_encode(df, col):
     """
     tools for count encode
@@ -86,7 +114,7 @@ def cross_count_encode(df, col_list):
     return df
 
 
-def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'var']):
+def agg_encode(df, num_col, col, stat_list = AGGREGATE_TYPE):
     agg_dict = {}
     for i in stat_list:
         agg_dict['AGG_{}_{}_{}'.format(i, num_col, col)] = i
@@ -94,6 +122,7 @@ def agg_encode(df, num_col, col, stat_list = ['min', 'max', 'mean', 'median', 'v
     r = left_merge(df, agg_result, on = [col])
     df = concat([df, r])
     return df
+
 
 def agg_nunique_encode(df, id_col, col):
     """
@@ -106,7 +135,8 @@ def agg_nunique_encode(df, id_col, col):
     df = concat([df, r])
     return df
 
-def agg_histgram_encode(df, id_col, col, stat_list = ['min', 'max', 'mean', 'median', 'var']):
+
+def agg_histgram_encode(df, id_col, col, stat_list = AGGREGATE_TYPE):
     """
     get id group_by(id) histgram statitics
     """
@@ -141,6 +171,7 @@ def embedding_encode(df, col):
     embedding for one single multi-categories column.
     """
     from gensim.models.word2vec import Word2Vec
+
     input_ = df[col].fillna('NA').apply(lambda x: str(x).split(' '))
     model = Word2Vec(input_, size=12, min_count=2, iter=5, window=5, workers=4)
     data_vec = []
@@ -155,11 +186,13 @@ def embedding_encode(df, col):
     df = pd.concat([df, data_vec], axis=1)
     return df
 
+
 def add_noise(series, noise_level):
     """
     target encoding smooth
     """
     return series * (1 + noise_level * np.random.randn(len(series)))
+
 
 def add_smooth(series, p, a = 1):
     """
@@ -167,9 +200,12 @@ def add_smooth(series, p, a = 1):
     """
     return (series.sum() + p / series.count() + a)
 
+
 def target_encoding(df, col, target_name='label'):
     """
     target encoding  using 5 k-fold with smooth
+
+    target_name : @mengjiao
     """
     df[col] = df[col].fillna('-9999999')
     mean_of_target = df[target_name].mean()
@@ -184,7 +220,7 @@ def target_encoding(df, col, target_name='label'):
         X_tr, X_val = X.iloc[tr_ind], X.iloc[val_ind]
         X.loc[df.index[val_ind], col_mean_name] = X_val[col].map(X_tr.groupby(col)[target_name].apply(lambda x: add_smooth(x, 0.5, 1)))
 
-    tr_agg =  X[[col, target_name]].groupby([col])[target_name].apply(lambda x: add_smooth(x, 0.5, 1)).reset_index()#['label'].mean().reset_index()
+    tr_agg =  X[[col, target_name]].groupby([col])[target_name].apply(lambda x: add_smooth(x, 0.5, 1)).reset_index()
     tr_agg.columns = [col, col_mean_name]
 
     X_te = X_te.merge(tr_agg, on = [col], how = 'left')
