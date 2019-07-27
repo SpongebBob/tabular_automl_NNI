@@ -155,7 +155,7 @@ class AutoFETuner(Tuner):
 
     def json2space(self, default_space):
         """
-        @mengjiao can you refine this part?
+        parse json to search_space 
         """
         result = []
         for key in default_space.keys():
@@ -172,6 +172,8 @@ class AutoFETuner(Tuner):
                         cross = [i,j] 
                         cross.sort()
                         name = (FeatureType.CROSSCOUNT + '_') + '_'.join(cross)
+                        result.append(name)         
+                        
             
             elif key == FeatureType.AGGREGATE:
                 for i in default_space[key][0]:

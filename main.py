@@ -16,10 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import nni
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_digits
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 import logging
 import numpy as np
 import pandas as pd
@@ -29,54 +25,21 @@ from model import *
 
 logger = logging.getLogger('auto-fe-examples')
 
-
-# def unit_test_fe():
-#     file_name = 'train.tiny.csv'
-#     target_name = 'Label'
-#     id_index = 'Id'
-    
-#     # list is a column_name generate from tuner
-#     df = pd.read_csv(file_name)
-
-#     import json
-#     with open('search_space.json', 'r') as file:	
-#         data= json.load(file)
-
-#     from autofe_tuner import AutoFETuner
-#     tuner = AutoFETuner()
-#     tuner.update_search_space(data)
-#     config = tuner.generate_parameters(1)
-#     print("generate params\n", config)
-    
-#     sample_col = config['sample_feature']
-    
-#     # raw feaure + sample_feature
-#     df = name2feature(df, sample_col, target_name)
-#     feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
-
-#     value = {
-#         "default":val_score, 
-#         "feature_importance":feature_imp
-#     }
-    
-#     tuner.receive_trial_result(0, config, value)
-#     config = tuner.generate_parameters(2)
-#     print("generate params\n", config)
-
-
 if __name__ == '__main__':
-
     file_name = 'train.tiny.csv'
     target_name = 'Label'
     id_index = 'Id'
 
     # get parameters from tuner
     RECEIVED_PARAMS = nni.get_next_parameter()
-    LOG.info("Received params:\n", RECEIVED_PARAMS)
+    logger.info("Received params:\n", RECEIVED_PARAMS)
     
     # list is a column_name generate from tuner
     df = pd.read_csv(file_name)
-    sample_col = RECEIVED_PARAMS['sample_feature']
+    if 'sample_feature' in RECEIVED_PARAMS.keys():
+        sample_col = RECEIVED_PARAMS['sample_feature']
+    else:
+        sample_col = []
     
     # raw feaure + sample_feature
     df = name2feature(df, sample_col, target_name)
