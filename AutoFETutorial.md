@@ -161,5 +161,6 @@ The baseline and the result as following:
 | Cretio Tiny  | 0.7516 | 0.7760 |[data link](https://labs.criteo.com/category/dataset/) |
 | titanic  | 0.8700 | 0.8867 |[data link](https://www.kaggle.com/c/titanic/data) |
 | Heart |0.9178| 0.9501|[data link](http://archive.ics.uci.edu/ml/datasets/Statlog+%28Heart%29)|
-| Cancer |0.7089 |0.7846 | [data link](http://archive.ics.uci.edu/ml/datasets/Breast+Cancer)|
+| Cancer |0.7089 | 0.7846 | [data link](http://archive.ics.uci.edu/ml/datasets/Breast+Cancer)|
+| Haberman |0.6568 | 0.6948 | [data link](http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/)|
 

@@ -1,0 +1,21 @@
+{
+    "count":[
+        "Pclass","Name","Sex","Age","SibSp","Parch","Ticket","Cabin","Embarked"
+    ],
+    "aggregate":[
+        [
+            "Fare"
+        ],
+        [
+            "Pclass","Name","Sex","Age","SibSp","Parch","Ticket","Cabin","Embarked"
+        ]
+    ],
+    "crosscount" :[
+        [
+            "Pclass","Name","Sex","Age","SibSp","Parch","Ticket","Cabin","Embarked"
+        ],
+        [
+            "Pclass","Name","Sex","Age","SibSp","Parch","Ticket","Cabin","Embarked"
+        ]
+    ]
+}
