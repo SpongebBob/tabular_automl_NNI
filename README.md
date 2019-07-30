@@ -148,7 +148,7 @@ nni.report_final_result({
 
 If you want to add a feature engineer operation, you should follow the  instruction in [here](./AutoFEOp.md). 
 
-# Benchmark
+# Test Example
 
 We test some binary-classfiaction benchmarks which from open-resource.
 
@@ -156,10 +156,12 @@ The experiment setting is given in the `./test_config/benchmark_name/search_sapc
 
 The baseline and the result as following:
 
-|  Dataset   | baseline auc  | automl auc| dataset link| 
-|  ----  | ----  | ----  | ----  |
-| Cretio Tiny  | 0.7516 | 0.7760 |[data link](https://labs.criteo.com/category/dataset/) |
-| titanic  | 0.8700 | 0.8867 |[data link](https://www.kaggle.com/c/titanic/data) |
-| Heart |0.9178| 0.9501|[data link](http://archive.ics.uci.edu/ml/datasets/Statlog+%28Heart%29)|
-| Cancer |0.7089 | 0.7846 | [data link](http://archive.ics.uci.edu/ml/datasets/Breast+Cancer)|
-| Haberman |0.6568 | 0.6948 | [data link](http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/)|
+
+|  Dataset   | baseline auc  | automl auc| number of cat|  number of num |  dataset link| 
+|  ----  | ----  | ----  | ----  |  ----  | ----  | 
+| Cretio| 0.7516 | 0.7760 | 13 | 26| [data link](https://labs.criteo.com/category/dataset/) |
+| titanic  | 0.8700 | 0.8867 | 9 | 1 |  [data link](https://www.kaggle.com/c/titanic/data) |
+| Heart |0.9178| 0.9501| 4 | 9|  [data link](http://archive.ics.uci.edu/ml/datasets/Statlog+%28Heart%29)|
+| Cancer |0.7089 | 0.7846 |9 | 0|  [data link](http://archive.ics.uci.edu/ml/datasets/Breast+Cancer)|
+| Haberman |0.6568 | 0.6948 | 2 | 1|   [data link](http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/)|
+
