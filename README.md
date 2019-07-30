@@ -1,12 +1,12 @@
-# How to use NNI to do Automatic Feature Engeering?
+# How to use NNI to do Automatic Feature Engineering?
 
 ## What is Tabular Data?
 
-*Tabular data is an arrangement of data in rows and columns, or possibly in a more complex structure. Usually we treat columns as features, rows as data. AutoML for tabular data including automatic feature generation, feature selection, and hyper tunning on a wide range of tabular data primitives — such as numbers, categories, multi-categories, timestamps etc.*
+*Tabular data is an arrangement of data in rows and columns, or possibly in a more complex structure. Usually, we treat columns as features, rows as data. AutoML for tabular data including automatic feature generation, feature selection, and hyper tunning on a wide range of tabular data primitives — such as numbers, categories, multi-categories, timestamps, etc.*
 
 ## Quick Start
 
-In this example, we will shows that how to do automatic feature engineering on nni.
+In this example, we will show how to do automatic feature engineering on nni.
 
 We treat the automatic feature engineering(auto-fe) as a two steps task. *feature generation exploration* and *feature selection*.
 
@@ -16,17 +16,17 @@ The tuner call *AutoFETuner* first will generate a command that to ask *Trial* t
 
 In the following iterations(2nd +), *AutoFETuner* updates the estimated feature importance ranking.
 
-If you are interested in contributing to the *AutoFETuner* algorithm, such as Reinforcement Learning(RL) and genetic algorithm (GA),you are welcomed to propose proposal and pull request.  Interface `update_candidate_probility()` can be used to update feature sample probability and `epoch_importance` maintains the all iterations feature importance.
+If you are interested in contributing to the *AutoFETuner* algorithm, such as Reinforcement Learning(RL) and genetic algorithm (GA), you are welcomed to propose proposal and pull request.  Interface `update_candidate_probility()` can be used to update feature sample probability and `epoch_importance` maintains the all iterations feature importance.
 
-*Trial* receives the the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general sdk to generate features. After evaluate performance by adding these features, *Trial* will report the final metric to the Tuner.
+*Trial* receives the configure contains selected feature configure from *Tuner*, then *Trial* will generate these feature by *fe_util*, which is a general SDK to generate features. After evaluating performance by adding these features, *Trial* will report the final metric to the Tuner.
 
 
-So when user want to write a tabular autoML tool running on NNI, she/he should:
+So when user wants to write a tabular autoML tool running on NNI, she/he should:
 
-**1) Have an Trial code to run**
+**1) Have a Trial code to run**
 
 Trial's code could be any machine learning code. 
-Here we use `main.py` as example:
+Here we use `main.py` as an example:
 
 ```diff
 import nni
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
 **2) Define a search space**
 
-Search space could be defined in a json file, format as following: 
+Search space could be defined in a JSON file, format as following: 
 
 ```json
 {
@@ -82,11 +82,11 @@ Search space could be defined in a json file, format as following:
 ```
 We provide `count encoding`, `target encoding`, `embedding encoding` for `1-order-op`.
 We provide `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op`.
-All operations above are classic feature enginner methods, and the detail in [here](./AutoFEOp.md). 
+All operations above are classic feature engineer methods, and the detail in [here](./AutoFEOp.md). 
 
-*Tuner* receives this search space, and generates the feature by calling generator in *fe_util*.
+*Tuner* receives this search space and generates the feature by calling generator in *fe_util*.
 
-For example, we want to search the features which is a frequency encoding (value count) features on columns name {col1, col2}, in the following way:
+For example, we want to search the features which are a frequency encoding (value count) features on columns name {col1, col2}, in the following way:
 
 ```json
 {
@@ -146,11 +146,11 @@ nni.report_final_result({
 
 **4) Extend the SDK of feature engineer method**
 
-If you want to add a feature engineer operation, you should follow the  instruction in [here](./AutoFEOp.md). 
+If you want to add a feature engineer operation, you should follow the instruction in [here](./AutoFEOp.md). 
 
 # Benchmark
 
-We test some binary-classfiaction benchmarks which come from public resource.
+We test some binary-classification benchmarks which come from public resources.
 
 The experiment setting is given in the `./benchmark/benchmark_name/search_sapce.json` :
 
