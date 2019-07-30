@@ -28,7 +28,7 @@ operation name: target
 
 Preformed on category columns(CAT).
 
-Target encoding is based on encoding categorical variable values with mean of target variable per value. A statistic (here - mean) of target variable can be computed for every group in the train set and afterwards merged to validation and test sets to capture relationships between a group and the target.
+Target encoding is based on encoding categorical variable values with the mean of target variable per value. A statistic (here - mean) of target variable can be computed for every group in the train set and afterward merged to validation and test sets to capture relationships between a group and the target.
 
 When using target variable, is is very important not to leak any information into the validation set. Every such feature should be computed on the training set and then only merged or concatenated with the validation and test subsets. Even though target variable is present in the validation set, it cannot be used for any kind of such computation or overly optimistic estimate of validation error will be given.
 
@@ -48,7 +48,7 @@ Preformed on multi-category columns(Multi-CAT).
 
 We can treat multi-category columns as natural language sentence, thus bag of words(BOW) can be utilized.
 
-However it has no semantics and very sparse.
+However, it has no semantics and very sparse.
 
 Thus word embedding is a good choice. First we train embedding and get the mean embedding for one row. Then use SVD for dimensionality reduction into 6 dims.
 
@@ -124,7 +124,7 @@ result.append(name)
 ...	
 ```
 
-Secondly, update code as following in the fucntion *name2feature* of trial.
+Secondly, update code as following in the function *name2feature* of trial.
 
 ```python
 ...
