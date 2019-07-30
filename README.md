@@ -80,11 +80,11 @@ Search space could be defined in a json file, format as following:
     ]
 }
 ```
-We provide `count encoding`,`target encoding`,`embedding encoding` for `1-order-op` examples.
-We provide `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op` examples.
+We provide `count encoding`, `target encoding`, `embedding encoding` for `1-order-op`.
+We provide `cross count encoding`, `aggerate statistics(min max var mean median nunique)`, `histgram aggerate statistics` for `2-order-op`.
 All operations above are classic feature enginner methods, and the detail in [here](./AutoFEOp.md). 
 
-*Tuner* receives this search space, and generates the feature calling SDK *fe_util*.
+*Tuner* receives this search space, and generates the feature by calling generator in *fe_util*.
 
 For example, we want to search the features which is a frequency encoding (value count) features on columns name {col1, col2}, in the following way:
 
@@ -131,7 +131,7 @@ df = name2feature(df, sample_col)
 ```
 
 
-**4)  Send result metric and feature importance to tunner**
+**4)  Send final metric and feature importances to tuner**
 
 Use `nni.report_final_result` to send final result to Tuner. Please noted **15** line in the following code.
 
@@ -150,9 +150,9 @@ If you want to add a feature engineer operation, you should follow the  instruct
 
 # Benchmark
 
-We test some binary-classfiaction benchmarks which from open-resource.
+We test some binary-classfiaction benchmarks which come from public resource.
 
-The experiment setting is given in the `./test_config/benchmark_name/search_sapce.json` :
+The experiment setting is given in the `./benchmark/benchmark_name/search_sapce.json` :
 
 The baseline and the result as following:
 
