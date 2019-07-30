@@ -14,7 +14,7 @@ We give a simple example.
 
 The tuner call *AutoFETuner* first will generate a command that to ask *Trial* the *feature_importance* of original feature. *Trial* will return the *feature_importance* to *Tuner* in the first iteration. Then *AutoFETuner* will estimate a feature importance ranking and decide what feature to be generated, according to the definition of search space.
 
-In the following iterations(2nd +), *AutoFETuner* updates the estimated feature importance ranking.
+In the following iterations, *AutoFETuner* updates the estimated feature importance ranking.
 
 If you are interested in contributing to the *AutoFETuner* algorithm, such as Reinforcement Learning(RL) and genetic algorithm (GA), you are welcomed to propose proposal and pull request.  Interface `update_candidate_probility()` can be used to update feature sample probability and `epoch_importance` maintains the all iterations feature importance.
 
