@@ -152,7 +152,7 @@ If you want to add a feature engineer operation, you should follow the  instruct
 
 We test some binary-classfiaction benchmarks which from open-resource.
 
-The experiment setting is given in the `./test_config/test_name/search_sapce.json` :
+The experiment setting is given in the `./test_config/benchmark_name/search_sapce.json` :
 
 The baseline and the result as following:
 
