@@ -20,15 +20,18 @@ import logging
 import numpy as np
 import pandas as pd
 import json
+import sys
+sys.path.append('../../')
+
 from fe_util import *
 from model import *
 
 logger = logging.getLogger('auto-fe-examples')
 
 if __name__ == '__main__':
-    file_name = 'train.tiny.csv'
-    target_name = 'Label'
-    id_index = 'Id'
+    file_name = '~/Downloads/train.csv'
+    target_name = 'Survived'
+    id_index = 'PassengerId'
 
     # get parameters from tuner
     RECEIVED_PARAMS = nni.get_next_parameter()
@@ -48,3 +51,4 @@ if __name__ == '__main__':
         "default":val_score, 
         "feature_importance":feature_imp
     })
+

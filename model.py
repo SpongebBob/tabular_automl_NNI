@@ -51,7 +51,7 @@ def train_test_split(X, y, test_size, random_state=2018):
     return [X_train, X_test, y_train, y_test]
 
 
-def lgb_model_train( df, _epoch = 1000, target_name = 'Label', id_index = 'Id'):
+def lgb_model_train( df, _epoch=1000, target_name='Label', id_index='Id'):
     df = df.loc[df[target_name].isnull()==False]
     feature_name = [i for i in df.columns if i not in [target_name, id_index]]
     for i in feature_name:

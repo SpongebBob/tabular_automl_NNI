@@ -1,0 +1,20 @@
+authorName: default
+experimentName: example-auto-fe
+trialConcurrency: 1
+maxExecDuration: 10h
+maxTrialNum: 50
+#choice: local, remote
+trainingServicePlatform: local
+searchSpacePath: search_space.json
+#choice: true, false
+useAnnotation: false
+tuner:
+  codeDir: ../../
+  classFileName: autofe_tuner.py
+  className: AutoFETuner
+  classArgs:
+    optimize_mode: maximize
+trial:
+  command: python3 main.py
+  codeDir: .
+  gpuNum: 0

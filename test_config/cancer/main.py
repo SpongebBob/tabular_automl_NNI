@@ -20,14 +20,19 @@ import logging
 import numpy as np
 import pandas as pd
 import json
+import sys
+from sklearn.preprocessing import LabelEncoder
+
+sys.path.append('../../')
+
 from fe_util import *
 from model import *
 
 logger = logging.getLogger('auto-fe-examples')
 
 if __name__ == '__main__':
-    file_name = 'train.tiny.csv'
-    target_name = 'Label'
+    file_name = ' ~/Downloads/breast-cancer.data'
+    target_name = 'Class'
     id_index = 'Id'
 
     # get parameters from tuner
@@ -35,7 +40,13 @@ if __name__ == '__main__':
     logger.info("Received params:\n", RECEIVED_PARAMS)
     
     # list is a column_name generate from tuner
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(file_name, sep = ',')
+    df.columns = [
+        'Class', 'age', 'menopause', 'tumor-size', 'inv-nodes',
+        'node-caps', 'deg-malig', 'breast', 'breast-quad', 'irradiat'
+    ]
+    df['Class'] = LabelEncoder().fit_transform(df['Class'])
+    
     if 'sample_feature' in RECEIVED_PARAMS.keys():
         sample_col = RECEIVED_PARAMS['sample_feature']
     else:
@@ -48,3 +59,4 @@ if __name__ == '__main__':
         "default":val_score, 
         "feature_importance":feature_imp
     })
+

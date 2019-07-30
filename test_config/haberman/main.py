@@ -20,13 +20,18 @@ import logging
 import numpy as np
 import pandas as pd
 import json
+import sys
+from sklearn.preprocessing import LabelEncoder
+
+sys.path.append('../../')
+
 from fe_util import *
 from model import *
 
 logger = logging.getLogger('auto-fe-examples')
 
 if __name__ == '__main__':
-    file_name = 'train.tiny.csv'
+    file_name = '~/Downloads/haberman.data'
     target_name = 'Label'
     id_index = 'Id'
 
@@ -35,7 +40,12 @@ if __name__ == '__main__':
     logger.info("Received params:\n", RECEIVED_PARAMS)
     
     # list is a column_name generate from tuner
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(file_name, sep = ',')
+    df.columns = [
+        'c1', 'c2', 'n1', 'Label'
+    ]
+    df['Label'] = df['Label'] -1 #LabelEncoder().fit_transform(df['Label'])
+    
     if 'sample_feature' in RECEIVED_PARAMS.keys():
         sample_col = RECEIVED_PARAMS['sample_feature']
     else:
@@ -48,3 +58,4 @@ if __name__ == '__main__':
         "default":val_score, 
         "feature_importance":feature_imp
     })
+

@@ -20,6 +20,9 @@ import logging
 import numpy as np
 import pandas as pd
 import json
+import sys
+sys.path.append('../../')
+
 from fe_util import *
 from model import *
 
@@ -48,3 +51,4 @@ if __name__ == '__main__':
         "default":val_score, 
         "feature_importance":feature_imp
     })
+

@@ -189,7 +189,7 @@ def target(df, col, target_name='label'):
     """
     target encoding  using 5 k-fold with smooth
 
-    target_name : @mengjiao
+    target_name : surpvised learning task pred target name, y.
     """
     df[col] = df[col].fillna('-9999999')
     mean_of_target = df[target_name].mean()

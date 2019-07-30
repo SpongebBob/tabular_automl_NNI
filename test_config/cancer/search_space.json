@@ -1,0 +1,16 @@
+{
+    "count":[
+        "age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", 
+        "breast", "breast-quad", "irradiat"
+    ],
+    "crosscount":[
+        [
+            "age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", 
+            "breast", "breast-quad", "irradiat"
+        ],
+        [
+            "age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", 
+            "breast", "breast-quad", "irradiat"
+        ]
+    ]
+}
