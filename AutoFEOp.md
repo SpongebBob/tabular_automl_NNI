@@ -8,18 +8,27 @@ We offer many operations which could automatically generate new features, which 
 `2-order-op` :
 `cross count encoding`, `aggregate statistics(min max var mean median nunique)` , `histgram aggregate statistics`
 
+Noted that if you want to write a operation in search space,
+you should use the operation name in *Operation Definition* 
+
 ## Operation Definition
 
 ### count
+
+operation name: count
+
 Preformed on category columns(CAT).
 
 Count encoding is based on replacing categories with their counts computed on the train set, also named frequency encoding.
 [count encoding](https://wrosinski.github.io/fe_categorical_encoding/)
 
 ### target
+
+operation name: target
+
 Preformed on category columns(CAT).
 
-Target encoding is based on encoding categorical variable values with mean of target variable per value. A statistic (here - mean) of target variable can be computed for every group in the train set and afterwards merged to validation and test sets to capture relationships between a group and the target.
+Target encoding is based on encoding categorical variable values with the mean of target variable per value. A statistic (here - mean) of target variable can be computed for every group in the train set and afterward merged to validation and test sets to capture relationships between a group and the target.
 
 When using target variable, is is very important not to leak any information into the validation set. Every such feature should be computed on the training set and then only merged or concatenated with the validation and test subsets. Even though target variable is present in the validation set, it cannot be used for any kind of such computation or overly optimistic estimate of validation error will be given.
 
@@ -32,15 +41,21 @@ When done properly, target encoding is the best encoding for both linear and non
 [target encoding reference](https://wrosinski.github.io/fe_categorical_encoding/)
 
 ### embedding
+
+operation name: embedding
+
 Preformed on multi-category columns(Multi-CAT).
 
 We can treat multi-category columns as natural language sentence, thus bag of words(BOW) can be utilized.
 
-However it has no semantics and very sparse.
+However, it has no semantics and very sparse.
 
 Thus word embedding is a good choice. First we train embedding and get the mean embedding for one row. Then use SVD for dimensionality reduction into 6 dims.
 
 ### crosscount
+
+operation name: crosscount
+
 Preformed on several category columns(CAT).
 
 Feature cross is important in some task such as Click Through Rate(CTR). 
@@ -48,23 +63,34 @@ Feature cross is important in some task such as Click Through Rate(CTR).
 Cross count is count encoding on more than one dimension.
 
 
-### aggregate min/max/var/mean/
+### aggregate
+
+operation name: aggregate
+
+including *min*/*max*/*var*/*mean*
+
 Preformed on one category column(CAT) and one numerical column(NUM). 
 
-We group the data by the instances and then every instance is represented by only one row. The key point of group by operations is to decide the aggregation functions of the features. For numerical features, average, sum, min, max functions are usually convenient options, whereas for categorical features it more complicated.
+We group the data by the instances and then every instance is represented by only one row. The key point of group by operations is to decide the aggregation functions of the features. For numerical features, *average*, *sum*, *min*, *max* functions are usually convenient options, whereas for categorical features it more complicated.
 
-### nunique (aggregate)
+### nunique
+
+operation name: nunique
+
 Preformed on one category column(CAT) and one category column(CAT).
 
 For categorical features, nunique() functions are usually convenient options, return a group distinct observations.
 
-### histstat (aggregate) 
+### histstat
+
+operation name: histstat
+
 Preformed on one category column(CAT) and one category column(CAT).
 
-For categorical features, we can take average, sum, min, max aggregate functions on the histogram of group result.
+For categorical features, we can take *average*, *sum*, *min*, *max* aggregate functions on the histogram of group result.
 
 ## How to use it?
-We just need to decide use which Op and the corresponding column name in search_space.json like:
+We just need to decide use which operation and the corresponding column name in search_space.json like:
 
 ```json
 {
@@ -84,11 +110,11 @@ We just need to decide use which Op and the corresponding column name in search_
 }
 ```
 
-# How to define an Op by yourself?
+# How to extend a new Op by yourself?
 
 
 
-Firstly, add json2space code in the tuner. 
+Firstly, add code as following in the tuner function *json2space*. 
 ```python
 ...
 if key == 'OP_NAME':
@@ -98,7 +124,7 @@ result.append(name)
 ...	
 ```
 
-Seconly, add name2feature code in the trail.
+Secondly, update code as following in the function *name2feature* of trial.
 
 ```python
 ...
@@ -109,12 +135,14 @@ if gen_name.startwith('opname'):
 ...
 ```
 
-Thirdly, add `fe_opname` implement in `fe_util.py`
+Thirdly, implement the `fe_opname` fucntion in `fe_util`
 ```python
 ...
-def fe_opnam(df, col):
+def fe_opname(df, col):
     # do some things to df[col]
     # DIY
     return df[col]
 ...
 ```
+
+Noted that the `op_name` in search space should be same as `fe_opname` defined in `fe_util`.
