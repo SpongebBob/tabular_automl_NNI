@@ -148,6 +148,12 @@ nni.report_final_result({
 
 If you want to add a feature engineer operation, you should follow the instruction in [here](./AutoFEOp.md). 
 
+**4) Run expeirment**
+
+```
+nnictl create --config config.yml
+```
+
 # Test Example
 
 We test some binary-classification benchmarks which come from public resources.
