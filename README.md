@@ -144,11 +144,11 @@ nni.report_final_result({
 })
 ```
 
-**4) Extend the SDK of feature engineer method**
+**5) Extend the SDK of feature engineer method**
 
 If you want to add a feature engineer operation, you should follow the instruction in [here](./AutoFEOp.md). 
 
-**5) Run expeirment**
+**6) Run expeirment**
 
 ```
 nnictl create --config config.yml
