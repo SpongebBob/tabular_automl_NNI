@@ -148,7 +148,7 @@ nni.report_final_result({
 
 If you want to add a feature engineer operation, you should follow the instruction in [here](./AutoFEOp.md). 
 
-**4) Run expeirment**
+**5) Run expeirment**
 
 ```
 nnictl create --config config.yml
